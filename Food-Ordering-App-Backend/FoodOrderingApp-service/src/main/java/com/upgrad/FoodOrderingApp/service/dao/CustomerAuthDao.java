@@ -4,20 +4,38 @@ import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
 @Repository
 public class CustomerAuthDao {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+  @PersistenceContext private EntityManager entityManager;
 
-    /**
-     * This method stores authorization access token in the database
-     *
-     * @param customerAuthEntity the CustomerAuthEntity object from which new authorization will be created
-     */
-    public void createCustomerAuthToken(CustomerAuthEntity customerAuthEntity) {
-        entityManager.persist(customerAuthEntity);
+  /**
+   * This method stores authorization access token in the database
+   *
+   * @param customerAuthEntity the CustomerAuthEntity object from which new authorization will be
+   *     created
+   */
+  public void createCustomerAuthToken(CustomerAuthEntity customerAuthEntity) {
+    entityManager.persist(customerAuthEntity);
+  }
+
+  /**
+   * This method fetches CustomerAuthEntity based on access-token
+   *
+   * @param accessToken access-token obtained during successful login.
+   * @return CustomerAuthEntity or null of token not found in database.
+   */
+  public CustomerAuthEntity getCustomerAuthByToken(String accessToken) {
+    try {
+      return entityManager
+          .createNamedQuery("customerAuthByToken", CustomerAuthEntity.class)
+          .setParameter("accessToken", accessToken)
+          .getSingleResult();
+    } catch (NoResultException nre) {
+      return null;
     }
+  }
 }
