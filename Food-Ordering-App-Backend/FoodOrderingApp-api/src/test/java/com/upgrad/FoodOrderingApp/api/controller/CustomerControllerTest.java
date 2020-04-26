@@ -270,7 +270,6 @@ public class CustomerControllerTest {
     // ----------------------------- PUT /customer --------------------------------
 
     //This test case passes when you are able to update customer details successfully.
-    /*
     @Test
     public void shouldUpdateCustomerDetails() throws Exception {
         final CustomerEntity customerEntity = new CustomerEntity();
@@ -368,6 +367,7 @@ public class CustomerControllerTest {
     // ----------------------------- PUT /customer/password --------------------------------
 
     //This test case passes when you are able to update your password successfully.
+    /*
     @Test
     public void shouldUpdateCustomerPassword() throws Exception {
         final CustomerEntity customerEntity = new CustomerEntity();
