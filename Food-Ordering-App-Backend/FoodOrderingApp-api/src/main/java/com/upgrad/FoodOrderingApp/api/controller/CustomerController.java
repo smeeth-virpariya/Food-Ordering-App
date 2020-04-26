@@ -36,12 +36,6 @@ public class CustomerController {
     @CrossOrigin
     @RequestMapping(method = RequestMethod.POST, path = "/customer/signup", produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
     public ResponseEntity<SignupCustomerResponse> signup(@RequestBody(required = false) final SignupCustomerRequest signupCustomerRequest) throws SignUpRestrictedException {
-
-        // Validation for required fields if any field other than lastname is empty then it throws SignUpRestrictedException exception
-        if (signupCustomerRequest.getFirstName().equals("") || signupCustomerRequest.getEmailAddress().equals("") || signupCustomerRequest.getContactNumber().equals("") || signupCustomerRequest.getPassword().equals("")) {
-            throw new SignUpRestrictedException("SGR-005", "Except last name all fields should be filled");
-        }
-
         CustomerEntity customerEntity = new CustomerEntity();
         customerEntity.setFirstName(signupCustomerRequest.getFirstName());
         customerEntity.setLastName(signupCustomerRequest.getLastName());
@@ -70,6 +64,7 @@ public class CustomerController {
         byte[] decode;
         String contactNumber;
         String password;
+        // ArrayIndexOutOfBoundsException occurs if the username or password is left as empty or try to authorize without Basic in prefix 'Basic Base64<contactNumber:password>' then it throws AuthenticationFailedException with code as ATH-003
         try {
             decode = Base64.getDecoder().decode(authorization.split("Basic ")[1]);
             String decodedText = new String(decode);

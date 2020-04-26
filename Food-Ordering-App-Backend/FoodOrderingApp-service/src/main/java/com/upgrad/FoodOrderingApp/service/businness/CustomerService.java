@@ -1,7 +1,9 @@
 package com.upgrad.FoodOrderingApp.service.businness;
 
+import com.upgrad.FoodOrderingApp.service.dao.CustomerAuthDao;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.upgrad.FoodOrderingApp.service.dao.CustomerDao;
@@ -12,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
-import java.util.regex.Pattern;
 
 @Service
 public class CustomerService {
@@ -23,6 +24,9 @@ public class CustomerService {
     @Autowired
     private PasswordCryptographyProvider passwordCryptographyProvider;
 
+    @Autowired
+    private CustomerAuthDao customerAuthDao;
+
     /**
      * This method implements the logic for 'signup' endpoint.
      *
@@ -32,28 +36,33 @@ public class CustomerService {
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public CustomerEntity saveCustomer(CustomerEntity customerEntity) throws SignUpRestrictedException {
-        // if contactNumber is already registered throws exception with code SGR-001
-        if (isContactNumberInUse(customerEntity.getContactNumber())) {
-            throw new SignUpRestrictedException("SGR-001", "This contact number is already registered! Try other contact number.");
+        // Validation for required fields if any field other than lastname is empty then it throws SignUpRestrictedException exception
+        if (!customerEntity.getFirstName().isEmpty() && !customerEntity.getEmailAddress().isEmpty() && !customerEntity.getContactNumber().isEmpty() && !customerEntity.getPassword().isEmpty()) {
+            // if contactNumber is already registered throws exception with code SGR-001
+            if (isContactNumberInUse(customerEntity.getContactNumber())) {
+                throw new SignUpRestrictedException("SGR-001", "This contact number is already registered! Try other contact number.");
+            }
+            // checks the email entered by user is valid or not
+            if (!isValidEmail(customerEntity.getEmailAddress())) {
+                throw new SignUpRestrictedException("SGR-002", "Invalid email-id format!");
+            }
+            // checks the contact number entered by user is valid or not
+            if (!isValidContactNumber(customerEntity.getContactNumber())) {
+                throw new SignUpRestrictedException("SGR-003", "Invalid contact number!");
+            }
+            // checks the password entered by user is valid or not
+            if (!isValidPassword(customerEntity.getPassword())) {
+                throw new SignUpRestrictedException("SGR-004", "Weak password!");
+            }
+            customerEntity.setUuid(UUID.randomUUID().toString());
+            // encrypts salt and password
+            String[] encryptedText = passwordCryptographyProvider.encrypt(customerEntity.getPassword());
+            customerEntity.setSalt(encryptedText[0]);
+            customerEntity.setPassword(encryptedText[1]);
+            return customerDao.saveCustomer(customerEntity);
+        } else {
+            throw new SignUpRestrictedException("SGR-005", "Except last name all fields should be filled");
         }
-        // checks the email entered by user is valid or not
-        if (!isValidEmail(customerEntity.getEmailAddress())) {
-            throw new SignUpRestrictedException("SGR-002", "Invalid email-id format!");
-        }
-        // checks the contact number entered by user is valid or not
-        if (!isValidContactNumber(customerEntity.getContactNumber())) {
-            throw new SignUpRestrictedException("SGR-003", "Invalid contact number!");
-        }
-        // checks the password entered by user is valid or not
-        if (!isValidPassword(customerEntity.getPassword())) {
-            throw new SignUpRestrictedException("SGR-004", "Weak password!");
-        }
-        customerEntity.setUuid(UUID.randomUUID().toString());
-        // encrypts salt and password
-        String[] encryptedText = passwordCryptographyProvider.encrypt(customerEntity.getPassword());
-        customerEntity.setSalt(encryptedText[0]);
-        customerEntity.setPassword(encryptedText[1]);
-        return customerDao.saveCustomer(customerEntity);
     }
 
     /**
@@ -66,14 +75,14 @@ public class CustomerService {
      */
     @Transactional(propagation = Propagation.REQUIRED)
     public CustomerAuthEntity authenticate(String username, String password) throws AuthenticationFailedException {
-        if (username.isEmpty() || password.isEmpty() || !isValidContactNumber(username) || !isValidPassword(password)) {
-            throw new AuthenticationFailedException("ATH-003", "Incorrect format of decoded customer name and password");
-        }
+        // fetch the customer details from database using contactNumber(username)
         CustomerEntity customerEntity = customerDao.getCustomerByContactNumber(username);
+        // if there is no customer registered with given contactNumber then it throw AuthenticationFailedException with code "ATH-001
         if (customerEntity == null) {
             throw new AuthenticationFailedException("ATH-001", "This contact number has not been registered!");
         }
         final String encryptedPassword = PasswordCryptographyProvider.encrypt(password, customerEntity.getSalt());
+        // if the encrypted password doesn't match with the fetched customer password throws AuthenticationFailedException with code "ATH--002
         if (!encryptedPassword.equals(customerEntity.getPassword())) {
             throw new AuthenticationFailedException("ATH-002", "Invalid Credentials");
         }
@@ -88,7 +97,7 @@ public class CustomerService {
         String accessToken = jwtTokenProvider.generateToken(customerEntity.getUuid(), now, expiresAt);
         customerAuthEntity.setAccessToken(accessToken);
 
-        customerDao.createCustomerAuthToken(customerAuthEntity);
+        customerAuthDao.createCustomerAuthToken(customerAuthEntity);
         return customerAuthEntity;
     }
 
@@ -97,11 +106,10 @@ public class CustomerService {
         return customerDao.getCustomerByContactNumber(contactNumber) != null;
     }
 
-    // method checks for email format is correct or not
+    // method checks for format of the email is correct or not using EmailValidator
     private boolean isValidEmail(final String emailAddress) {
-        String emailRegex = "^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-z A-Z]{2,7}$";
-        Pattern pattern = Pattern.compile(emailRegex);
-        return pattern.matcher(emailAddress).matches();
+        EmailValidator validator = EmailValidator.getInstance();
+        return validator.isValid(emailAddress);
     }
 
     // method checks for given contact number is valid or not

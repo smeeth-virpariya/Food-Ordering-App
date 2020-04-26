@@ -41,13 +41,4 @@ public class CustomerDao {
             return null;
         }
     }
-
-    /**
-     * This method stores authorization access token in the database
-     *
-     * @param customerAuthEntity the CustomerAuthEntity object from which new authorization will be created
-     */
-    public void createCustomerAuthToken(CustomerAuthEntity customerAuthEntity) {
-        entityManager.persist(customerAuthEntity);
-    }
 }
