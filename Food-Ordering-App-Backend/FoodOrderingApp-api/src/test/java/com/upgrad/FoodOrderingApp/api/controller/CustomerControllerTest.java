@@ -203,7 +203,7 @@ public class CustomerControllerTest {
     // ----------------------------- POST /customer/logout --------------------------------
 
     //This test case passes when you are able to logout successfully.
-    /*
+
     @Test
     public void shouldLogoutForValidRequest() throws Exception {
         final CustomerAuthEntity createdCustomerAuthEntity = new CustomerAuthEntity();
@@ -270,6 +270,7 @@ public class CustomerControllerTest {
     // ----------------------------- PUT /customer --------------------------------
 
     //This test case passes when you are able to update customer details successfully.
+    /*
     @Test
     public void shouldUpdateCustomerDetails() throws Exception {
         final CustomerEntity customerEntity = new CustomerEntity();

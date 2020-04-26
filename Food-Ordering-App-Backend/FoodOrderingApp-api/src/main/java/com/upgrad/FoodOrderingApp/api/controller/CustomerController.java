@@ -1,12 +1,14 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
 import com.upgrad.FoodOrderingApp.api.model.LoginResponse;
+import com.upgrad.FoodOrderingApp.api.model.LogoutResponse;
 import com.upgrad.FoodOrderingApp.api.model.SignupCustomerRequest;
 import com.upgrad.FoodOrderingApp.api.model.SignupCustomerResponse;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
+import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.SignUpRestrictedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -92,6 +94,21 @@ public class CustomerController {
         headers.setAccessControlExposeHeaders(header);
 
         return new ResponseEntity<LoginResponse>(loginResponse, headers, HttpStatus.OK);
+    }
+
+    /**
+     * This api endpoint is used to logout the customer.
+     *
+     * @param authorization is the access token of the customer in 'Bearer <access-token>' format.
+     * @return ResponseEntity<LogoutResponse> type object along with HttpStatus as OK.
+     * @throws AuthorizationFailedException if any of the validation on customer access token fails.
+     */
+    @RequestMapping(method = RequestMethod.POST, path = "/customer/logout", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<LogoutResponse> logout(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
+        String accessToken = authorization.split("Bearer ")[1];
+        CustomerAuthEntity createdCustomerAuthEntity = customerService.logout(accessToken);
+        LogoutResponse logoutResponse = new LogoutResponse().id(createdCustomerAuthEntity.getCustomer().getUuid()).message("LOGGED OUT SUCCESSFULLY");
+        return new ResponseEntity<LogoutResponse>(logoutResponse, HttpStatus.OK);
     }
 
 }

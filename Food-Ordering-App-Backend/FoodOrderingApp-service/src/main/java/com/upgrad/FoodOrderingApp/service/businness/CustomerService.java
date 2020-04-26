@@ -3,6 +3,7 @@ package com.upgrad.FoodOrderingApp.service.businness;
 import com.upgrad.FoodOrderingApp.service.dao.CustomerAuthDao;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
+import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -98,6 +99,38 @@ public class CustomerService {
         customerAuthEntity.setAccessToken(accessToken);
 
         customerAuthDao.createCustomerAuthToken(customerAuthEntity);
+        return customerAuthEntity;
+    }
+
+    /**
+     * This method implements the logic for 'logout' endpoint.
+     *
+     * @param accessToken Customer access token in 'Bearer <access-token>' format.
+     * @return Updated CustomerAuthEntity object.
+     * @throws AuthorizationFailedException if any of the validation fails on customer authorization.
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    public CustomerAuthEntity logout(final String accessToken) throws AuthorizationFailedException {
+
+        // fetch the customer details from database using the access token of the customer
+        CustomerAuthEntity customerAuthEntity = customerAuthDao.getCustomerByAccessToken(accessToken);
+
+        //if access token is not available in database throws AuthorizationFailedException with code "ATHR-001
+        if (customerAuthEntity == null) {
+            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
+        }
+        // if the customer is already logged out and trying to logout again then it will throw AuthorizationFailedException with code "ATHR--002"
+        if (customerAuthEntity.getLogoutAt() != null) {
+            throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
+        }
+        // if the customer's session is timed out then it will throw AuthorizationFailedException with code "ATHR-003"
+        if (customerAuthEntity.getExpiresAt().isBefore(ZonedDateTime.now())) {
+            throw new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint.");
+        }
+        // updates the logout time in the database
+        customerAuthEntity.setLogoutAt(ZonedDateTime.now());
+        customerAuthDao.updateCustomerAuth(customerAuthEntity);
+
         return customerAuthEntity;
     }
 
