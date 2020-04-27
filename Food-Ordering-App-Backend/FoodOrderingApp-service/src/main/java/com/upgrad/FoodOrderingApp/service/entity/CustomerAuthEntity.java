@@ -19,8 +19,7 @@ import java.time.ZonedDateTime;
 @NamedQueries({
         @NamedQuery(
                 name = "customerAuthByToken",
-                query = "select customer from CustomerAuthEntity customer where customer.accessToken=:accessToken"
-        )
+                query = "select c from CustomerAuthEntity c where c.accessToken=:accessToken")
 })
 public class CustomerAuthEntity implements Serializable {
 

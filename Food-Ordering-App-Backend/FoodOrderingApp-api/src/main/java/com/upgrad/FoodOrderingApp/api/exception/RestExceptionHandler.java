@@ -34,7 +34,7 @@ public class RestExceptionHandler {
     public ResponseEntity<ErrorResponse> authenticationFailedException(AuthenticationFailedException exception, WebRequest request) {
         return new ResponseEntity<ErrorResponse>(new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()), HttpStatus.UNAUTHORIZED);
     }
-
+  
     /**
      * Exception handler for AuthorizationFailedException.
      *
@@ -42,6 +42,7 @@ public class RestExceptionHandler {
      * @param request   The web request object gives access to all the request parameters.
      * @return ResponseEntity<ErrorResponse> type object displaying error code and error message along with HttpStatus as FORBIDDEN.
      */
+
     @ExceptionHandler(AuthorizationFailedException.class)
     public ResponseEntity<ErrorResponse> authorizationFailedException(AuthorizationFailedException exception, WebRequest request) {
         return new ResponseEntity<ErrorResponse>(new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()), HttpStatus.FORBIDDEN);
@@ -64,7 +65,7 @@ public class RestExceptionHandler {
   }
 
   /**
-   * Exception handler for UpdateCustomerException.
+   * Exception handler for AddressNotFoundException.
    *
    * @param exception AddressNotFoundException type object contains error code and error message.
    * @param request The web request object gives access to all the request parameters.
@@ -80,7 +81,7 @@ public class RestExceptionHandler {
   }
 
   /**
-   * Exception handler for UpdateCustomerException.
+   * Exception handler for SaveAddressException.
    *
    * @param exception SaveAddressException type object contains error code and error message.
    * @param request The web request object gives access to all the request parameters.
@@ -94,4 +95,15 @@ public class RestExceptionHandler {
         new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()),
         HttpStatus.BAD_REQUEST);
   }
+
+  /**
+   * Exception handler for CouponNotFoundException
+   *
+   *@return ResponseEntity<ErrorResponse> type object displaying error code and error message along
+   *     with HttpStatus as BAD_REQUEST.
+   */
+  @ExceptionHandler(CouponNotFoundException.class)
+    public ResponseEntity<ErrorResponse> couponNotFoundException(CouponNotFoundException exception, WebRequest request) {
+        return new ResponseEntity<ErrorResponse>(new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()), HttpStatus.NOT_FOUND);
+    }
 }
