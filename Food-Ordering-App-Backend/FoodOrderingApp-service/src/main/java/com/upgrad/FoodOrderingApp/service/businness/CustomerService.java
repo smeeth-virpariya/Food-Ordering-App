@@ -139,7 +139,6 @@ public class CustomerService {
     return customerDao.updateCustomer(customerEntity);
   }
 
-
   /**
    * This method checks if the token is valid.
    * @param accessToken Takes access-token as input which is obtained during successful login.
