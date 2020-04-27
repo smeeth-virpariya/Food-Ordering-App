@@ -1,10 +1,7 @@
 package com.upgrad.FoodOrderingApp.api.exception;
 
 import com.upgrad.FoodOrderingApp.api.model.ErrorResponse;
-import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
-import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
-import com.upgrad.FoodOrderingApp.service.exception.SignUpRestrictedException;
-import com.upgrad.FoodOrderingApp.service.exception.UpdateCustomerException;
+import com.upgrad.FoodOrderingApp.service.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -61,6 +58,38 @@ public class RestExceptionHandler {
   @ExceptionHandler(UpdateCustomerException.class)
   public ResponseEntity<ErrorResponse> updateCustomerException(
       UpdateCustomerException exception, WebRequest request) {
+    return new ResponseEntity<ErrorResponse>(
+        new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()),
+        HttpStatus.BAD_REQUEST);
+  }
+
+  /**
+   * Exception handler for UpdateCustomerException.
+   *
+   * @param exception AddressNotFoundException type object contains error code and error message.
+   * @param request The web request object gives access to all the request parameters.
+   * @return ResponseEntity<ErrorResponse> type object displaying error code and error message along
+   *     with HttpStatus as NOT_FOUND.
+   */
+  @ExceptionHandler(AddressNotFoundException.class)
+  public ResponseEntity<ErrorResponse> addressNotFoundException(
+      AddressNotFoundException exception, WebRequest request) {
+    return new ResponseEntity<ErrorResponse>(
+        new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()),
+        HttpStatus.NOT_FOUND);
+  }
+
+  /**
+   * Exception handler for UpdateCustomerException.
+   *
+   * @param exception SaveAddressException type object contains error code and error message.
+   * @param request The web request object gives access to all the request parameters.
+   * @return ResponseEntity<ErrorResponse> type object displaying error code and error message along
+   *     with HttpStatus as BAD_REQUEST.
+   */
+  @ExceptionHandler(SaveAddressException.class)
+  public ResponseEntity<ErrorResponse> saveAddressException(
+      SaveAddressException exception, WebRequest request) {
     return new ResponseEntity<ErrorResponse>(
         new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()),
         HttpStatus.BAD_REQUEST);

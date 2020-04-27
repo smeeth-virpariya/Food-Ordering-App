@@ -102,6 +102,7 @@ public class CustomerController {
    * @return ResponseEntity<LogoutResponse> type object along with HttpStatus as OK.
    * @throws AuthorizationFailedException if any of the validation on customer access token fails.
    */
+  @CrossOrigin
   @RequestMapping(
       method = RequestMethod.POST,
       path = "/customer/logout",
@@ -128,6 +129,7 @@ public class CustomerController {
    * @throws AuthorizationFailedException if any validation on customer access token fails.
    * @throws UpdateCustomerException if first name is not provided in updateCustomerRequest param.
    */
+  @CrossOrigin
   @RequestMapping(
       method = RequestMethod.PUT,
       path = "/customer",

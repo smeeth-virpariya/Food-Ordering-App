@@ -9,6 +9,8 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "customer")
@@ -58,7 +60,14 @@ public class CustomerEntity implements Serializable {
     @Column(name = "salt")
     private String salt;
 
-    public String getFirstName() {
+  @OneToMany
+  @JoinTable(
+      name = "customer_address",
+      joinColumns = @JoinColumn(name = "customer_id"),
+      inverseJoinColumns = @JoinColumn(name = "address_id"))
+  private List<AddressEntity> addresses = new ArrayList<>();
+
+  public String getFirstName() {
         return firstName;
     }
 
@@ -122,7 +131,15 @@ public class CustomerEntity implements Serializable {
         this.salt = salt;
     }
 
-    @Override
+  public List<AddressEntity> getAddresses() {
+    return addresses;
+  }
+
+  public void setAddresses(List<AddressEntity> addresses) {
+    this.addresses = addresses;
+  }
+
+  @Override
     public boolean equals(Object obj) {
         return new EqualsBuilder().append(this, obj).isEquals();
     }
