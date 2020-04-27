@@ -166,31 +166,6 @@ public class CustomerService {
     return customerAuthEntity;
   }
 
-  /**
-   * This method checks if the token is valid.
-   * @param accessToken Takes access-token as input which is obtained during successful login.
-   * @return CustomerEntity - Customer who obtained this access-token during his login.
-   * @throws AuthorizationFailedException Based on token validity.
-   */
-  public CustomerEntity getCustomer(String accessToken) throws AuthorizationFailedException {
-    CustomerAuthEntity customerAuthEntity = customerAuthDao.getCustomerAuthByToken(accessToken);
-    if (customerAuthEntity != null) {
-
-      if (customerAuthEntity.getLogoutAt() != null) {
-        throw new AuthorizationFailedException(
-            "ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
-      }
-
-      if (ZonedDateTime.now().isAfter(customerAuthEntity.getExpiresAt())) {
-        throw new AuthorizationFailedException(
-            "ATHR-003", "Your session is expired. Log in again to access this endpoint.");
-      }
-      return customerAuthEntity.getCustomer();
-    } else {
-      throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
-    }
-  }
-
   // method checks for given contact number is already registered or not
   private boolean isContactNumberInUse(final String contactNumber) {
     return customerDao.getCustomerByContactNumber(contactNumber) != null;
