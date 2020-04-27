@@ -5,6 +5,7 @@ import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedExceptio
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.CouponNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.SignUpRestrictedException;
+import com.upgrad.FoodOrderingApp.service.exception.UpdateCustomerException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -37,15 +38,43 @@ public class RestExceptionHandler {
     public ResponseEntity<ErrorResponse> authenticationFailedException(AuthenticationFailedException exception, WebRequest request) {
         return new ResponseEntity<ErrorResponse>(new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()), HttpStatus.UNAUTHORIZED);
     }
-
-    @ExceptionHandler(CouponNotFoundException.class)
-    public ResponseEntity<ErrorResponse> couponNotFoundException(CouponNotFoundException exception, WebRequest request) {
-        return new ResponseEntity<ErrorResponse>(new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()), HttpStatus.NOT_FOUND);
-    }
+  
+    /**
+     * Exception handler for AuthorizationFailedException.
+     *
+     * @param exception AuthorizationFailedException type object contains error code and error message.
+     * @param request   The web request object gives access to all the request parameters.
+     * @return ResponseEntity<ErrorResponse> type object displaying error code and error message along with HttpStatus as FORBIDDEN.
+     */
 
     @ExceptionHandler(AuthorizationFailedException.class)
     public ResponseEntity<ErrorResponse> authorizationFailedException(AuthorizationFailedException exception, WebRequest request) {
         return new ResponseEntity<ErrorResponse>(new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()), HttpStatus.FORBIDDEN);
     }
 
+  /**
+   * Exception handler for UpdateCustomerException.
+   *
+   * @param exception UpdateCustomerException type object contains error code and error message.
+   * @param request The web request object gives access to all the request parameters.
+   * @return ResponseEntity<ErrorResponse> type object displaying error code and error message along
+   *     with HttpStatus as BAD_REQUEST.
+   */
+  @ExceptionHandler(UpdateCustomerException.class)
+  public ResponseEntity<ErrorResponse> updateCustomerException(
+      UpdateCustomerException exception, WebRequest request) {
+    return new ResponseEntity<ErrorResponse>(
+        new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()),
+        HttpStatus.BAD_REQUEST);
+  }
+  /**
+   * Exception handler for CouponNotFoundException
+   *
+   *@return ResponseEntity<ErrorResponse> type object displaying error code and error message along
+   *     with HttpStatus as BAD_REQUEST.
+   */
+  @ExceptionHandler(CouponNotFoundException.class)
+    public ResponseEntity<ErrorResponse> couponNotFoundException(CouponNotFoundException exception, WebRequest request) {
+        return new ResponseEntity<ErrorResponse>(new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()), HttpStatus.NOT_FOUND);
+    }
 }

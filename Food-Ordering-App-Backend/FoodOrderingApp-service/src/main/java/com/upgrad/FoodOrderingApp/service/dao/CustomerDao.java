@@ -41,4 +41,15 @@ public class CustomerDao {
             return null;
         }
     }
+
+  /**
+   * This method updates the customer details in the database.
+   *
+   * @param customerEntity CustomerEntity object to update.
+   * @return Updated CustomerEntity object.
+   */
+  public CustomerEntity updateCustomer(final CustomerEntity customerEntity) {
+    entityManager.merge(customerEntity);
+    return customerEntity;
+  }
 }

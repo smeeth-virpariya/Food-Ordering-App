@@ -37,5 +37,30 @@ public class CustomerAuthDao {
     } catch (NoResultException nre) {
       return null;
     }
+
+  /**
+   * This method helps to find the customer using the access token.
+   *
+   * @param accessToken the access token which will be searched in database to find the customer.
+   * @return CustomerAuthEntity object if given access token exists in the database.
+   */
+  public CustomerAuthEntity getCustomerAuthByToken(final String accessToken) {
+    try {
+      return entityManager
+          .createNamedQuery("customerAuthByToken", CustomerAuthEntity.class)
+          .setParameter("accessToken", accessToken)
+          .getSingleResult();
+    } catch (NoResultException nre) {
+      return null;
+    }
+  }
+
+  /**
+   * This method updates the customers logout time in the database.
+   *
+   * @param updatedCustomerAuthEntity CustomerAuthEntity object to update.
+   */
+  public void updateCustomerAuth(final CustomerAuthEntity updatedCustomerAuthEntity) {
+    entityManager.merge(updatedCustomerAuthEntity);
   }
 }
