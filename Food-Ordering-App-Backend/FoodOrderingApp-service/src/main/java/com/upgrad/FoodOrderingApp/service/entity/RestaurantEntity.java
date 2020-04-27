@@ -17,6 +17,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "restaurant")
@@ -25,7 +26,7 @@ import javax.validation.constraints.Size;
       name = "restaurantByUUID",
       query = "select r from RestaurantEntity r where r.uuid=:uuid")
 })
-public class RestaurantEntity {
+public class RestaurantEntity implements Serializable {
 
   @Id
   @Column(name = "id")

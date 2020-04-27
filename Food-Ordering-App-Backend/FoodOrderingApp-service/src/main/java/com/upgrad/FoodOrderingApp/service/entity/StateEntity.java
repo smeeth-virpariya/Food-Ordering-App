@@ -10,25 +10,32 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "state")
-public class StateEntity {
+@NamedQueries({
+  @NamedQuery(
+      name = "getStateByUuid",
+      query = "select s from StateEntity s where s.uuid=:stateUuid")
+})
+public class StateEntity implements Serializable {
 
   @Id
-  @Column(name = "id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
   private Integer id;
 
-  @Column(name = "uuid", unique = true)
-  @NotNull
   @Size(max = 200)
+  @NotNull
+  @Column(name = "uuid", unique = true)
   private String uuid;
 
-  @NotNull
   @Size(max = 30)
   @Column(name = "state_name")
   private String stateName;

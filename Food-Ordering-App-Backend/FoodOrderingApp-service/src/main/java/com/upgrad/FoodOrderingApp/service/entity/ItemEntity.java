@@ -16,6 +16,7 @@ import javax.persistence.NamedNativeQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "item")
@@ -31,7 +32,7 @@ import javax.validation.constraints.Size;
               + "desc LIMIT 5)",
       resultClass = ItemEntity.class)
 })
-public class ItemEntity {
+public class ItemEntity implements Serializable {
   @Id
   @Column(name = "id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)

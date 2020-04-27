@@ -13,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -56,6 +57,15 @@ public class AddressEntity implements Serializable {
   @Column(name = "active")
   private Integer active;
 
+  // ToDo: Check if this can be done differently
+  @ManyToOne
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinTable(
+      name = "customer_address",
+      joinColumns = @JoinColumn(name = "address_id"),
+      inverseJoinColumns = @JoinColumn(name = "customer_id"))
+  private CustomerEntity customer;
+
   public AddressEntity() {}
 
   public AddressEntity(
@@ -93,7 +103,7 @@ public class AddressEntity implements Serializable {
     return flatBuildingNumber;
   }
 
-  public void setFlatBuilNo(String flatBuildingNumber) {
+  public void setFlatBuildingNumber(String flatBuildingNumber) {
     this.flatBuildingNumber = flatBuildingNumber;
   }
 
@@ -135,6 +145,14 @@ public class AddressEntity implements Serializable {
 
   public void setActive(Integer active) {
     this.active = active;
+  }
+
+  public CustomerEntity getCustomer() {
+    return customer;
+  }
+
+  public void setCustomer(CustomerEntity customer) {
+    this.customer = customer;
   }
 
   @Override

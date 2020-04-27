@@ -15,6 +15,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "coupon")
@@ -23,7 +24,7 @@ import javax.validation.constraints.Size;
       name = "couponByName",
       query = "select c from CouponEntity c where c.couponName=:couponName")
 })
-public class CouponEntity {
+public class CouponEntity implements Serializable {
 
   @Id
   @Column(name = "id")

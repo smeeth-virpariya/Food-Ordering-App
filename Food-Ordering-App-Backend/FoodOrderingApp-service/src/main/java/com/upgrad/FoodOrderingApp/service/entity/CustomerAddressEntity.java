@@ -5,42 +5,27 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+
 import java.io.Serializable;
 
 @Entity
-@Table(name = "payment")
-public class PaymentEntity implements Serializable {
+@Table(name = "customer_address")
+public class CustomerAddressEntity implements Serializable {
 
   @Id
   @Column(name = "id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
-  @Column(name = "uuid", unique = true)
+  @Column(name = "customer_id")
   @NotNull
-  @Size(max = 200)
-  private String uuid;
+  private Integer customerId;
 
-  @Column(name = "payment_name")
   @NotNull
-  @Size(max = 255)
-  private String paymentName;
-
-  public PaymentEntity() {}
-
-  public PaymentEntity(
-      @NotNull @Size(max = 200) String uuid, @NotNull @Size(max = 255) String paymentName) {
-    this.uuid = uuid;
-    this.paymentName = paymentName;
-  }
+  @Column(name = "address_id")
+  private Integer addressId;
 
   public Integer getId() {
     return id;
@@ -50,20 +35,20 @@ public class PaymentEntity implements Serializable {
     this.id = id;
   }
 
-  public String getUuid() {
-    return uuid;
+  public Integer getCustomerId() {
+    return customerId;
   }
 
-  public void setUuid(String uuid) {
-    this.uuid = uuid;
+  public void setCustomerId(Integer customerId) {
+    this.customerId = customerId;
   }
 
-  public String getPaymentName() {
-    return paymentName;
+  public Integer getAddressId() {
+    return addressId;
   }
 
-  public void setPaymentName(String paymentName) {
-    this.paymentName = paymentName;
+  public void setAddressId(Integer addressId) {
+    this.addressId = addressId;
   }
 
   @Override
