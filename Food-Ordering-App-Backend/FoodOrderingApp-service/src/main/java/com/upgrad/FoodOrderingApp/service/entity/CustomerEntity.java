@@ -22,36 +22,36 @@ import java.util.List;
 public class CustomerEntity implements Serializable {
 
   @Id
-  @Column(name = "id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
   private Integer id;
 
-  @Column(name = "uuid", unique = true)
   @NotNull
   @Size(max = 200)
+  @Column(name = "uuid", unique = true)
   private String uuid;
 
-  @Column(name = "firstname")
-  @Size(max = 30)
   @NotNull
+  @Size(max = 30)
+  @Column(name = "firstname")
   private String firstName;
 
-  @Column(name = "lastname")
   @Size(max = 30)
+  @Column(name = "lastname")
   private String lastName;
 
-  @Column(name = "email")
   @Size(max = 50)
+  @Column(name = "email")
   private String emailAddress;
 
-  @Column(name = "contact_number", unique = true)
   @NotNull
   @Size(max = 30)
+  @Column(name = "contact_number", unique = true)
   private String contactNumber;
 
-  @Column(name = "password")
-  @Size(max = 255)
   @NotNull
+  @Size(max = 255)
+  @Column(name = "password")
   private String password;
 
   @NotNull
@@ -138,7 +138,6 @@ public class CustomerEntity implements Serializable {
     this.addresses = addresses;
   }
 
-  @Override
   public boolean equals(Object obj) {
     return new EqualsBuilder().append(this, obj).isEquals();
   }
