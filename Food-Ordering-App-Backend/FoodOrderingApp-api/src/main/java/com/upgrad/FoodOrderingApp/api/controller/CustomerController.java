@@ -1,5 +1,6 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
+import com.upgrad.FoodOrderingApp.api.common.Utility;
 import com.upgrad.FoodOrderingApp.api.model.*;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
@@ -94,51 +95,66 @@ public class CustomerController {
         return new ResponseEntity<LoginResponse>(loginResponse, headers, HttpStatus.OK);
     }
 
-    /**
-     * This api endpoint is used to logout the customer.
-     *
-     * @param authorization is the access token of the customer in 'Bearer <access-token>' format.
-     * @return ResponseEntity<LogoutResponse> type object along with HttpStatus as OK.
-     * @throws AuthorizationFailedException if any of the validation on customer access token fails.
-     */
-    @RequestMapping(method = RequestMethod.POST, path = "/customer/logout", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<LogoutResponse> logout(@RequestHeader("authorization") final String authorization) throws AuthorizationFailedException {
-        String accessToken = authorization.split("Bearer ")[1];
-        CustomerAuthEntity createdCustomerAuthEntity = customerService.logout(accessToken);
-        LogoutResponse logoutResponse = new LogoutResponse().id(createdCustomerAuthEntity.getCustomer().getUuid()).message("LOGGED OUT SUCCESSFULLY");
-        return new ResponseEntity<LogoutResponse>(logoutResponse, HttpStatus.OK);
+  /**
+   * This api endpoint is used to logout the customer.
+   *
+   * @param authorization is the access token of the customer in 'Bearer <access-token>' format.
+   * @return ResponseEntity<LogoutResponse> type object along with HttpStatus as OK.
+   * @throws AuthorizationFailedException if any of the validation on customer access token fails.
+   */
+  @RequestMapping(
+      method = RequestMethod.POST,
+      path = "/customer/logout",
+      produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public ResponseEntity<LogoutResponse> logout(
+      @RequestHeader("authorization") final String authorization)
+      throws AuthorizationFailedException {
+    final String accessToken = Utility.getTokenFromAuthorization(authorization);
+    CustomerAuthEntity createdCustomerAuthEntity = customerService.logout(accessToken);
+    LogoutResponse logoutResponse =
+        new LogoutResponse()
+            .id(createdCustomerAuthEntity.getCustomer().getUuid())
+            .message("LOGGED OUT SUCCESSFULLY");
+    return new ResponseEntity<LogoutResponse>(logoutResponse, HttpStatus.OK);
+  }
+
+  /**
+   * This api endpoint is used to update customer details.
+   *
+   * @param updateCustomerRequest this argument contains all the attributes required to update a
+   *     customer in the database.
+   * @param authorization customers access token in 'Bearer <access-token>' format.
+   * @return ResponseEntity<UpdateCustomerResponse> type object along with HttpStatus as OK.
+   * @throws AuthorizationFailedException if any validation on customer access token fails.
+   * @throws UpdateCustomerException if first name is not provided in updateCustomerRequest param.
+   */
+  @RequestMapping(
+      method = RequestMethod.PUT,
+      path = "/customer",
+      produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
+      consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public ResponseEntity<UpdateCustomerResponse> update(
+      @RequestBody(required = false) final UpdateCustomerRequest updateCustomerRequest,
+      @RequestHeader("authorization") final String authorization)
+      throws UpdateCustomerException, AuthorizationFailedException {
+    if (updateCustomerRequest.getFirstName().isEmpty()) {
+      throw new UpdateCustomerException("UCR-002", "First name field should not be empty");
     }
 
-    /**
-     * This api endpoint is used to update customer details.
-     *
-     * @param updateCustomerRequest this argument contains all the attributes required to update a customer in the database.
-     * @param authorization         customers access token in 'Bearer <access-token>' format.
-     * @return ResponseEntity<UpdateCustomerResponse> type object along with HttpStatus as OK.
-     * @throws AuthorizationFailedException if any validation on customer access token fails.
-     * @throws UpdateCustomerException      if first name is not provided in updateCustomerRequest param.
-     */
-    @RequestMapping(method = RequestMethod.PUT, path = "/customer", produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<UpdateCustomerResponse> update(@RequestBody(required = false) final UpdateCustomerRequest updateCustomerRequest, @RequestHeader("authorization") final String authorization) throws UpdateCustomerException, AuthorizationFailedException {
-        if (updateCustomerRequest.getFirstName().isEmpty()) {
-            throw new UpdateCustomerException("UCR-002", "First name field should not be empty");
-        }
+    String accessToken = Utility.getTokenFromAuthorization(authorization);
 
-        String accessToken = authorization.split("Bearer ")[1];
+    CustomerEntity customerEntity = customerService.getCustomer(accessToken);
+    customerEntity.setFirstName(updateCustomerRequest.getFirstName());
+    customerEntity.setLastName(updateCustomerRequest.getLastName());
 
-        CustomerEntity customerEntity = customerService.getCustomer(accessToken);
-        customerEntity.setFirstName(updateCustomerRequest.getFirstName());
-        customerEntity.setLastName(updateCustomerRequest.getLastName());
+    CustomerEntity updatedCustomerEntity = customerService.updateCustomer(customerEntity);
 
-        CustomerEntity updatedCustomerEntity = customerService.updateCustomer(customerEntity);
+    UpdateCustomerResponse updateCustomerResponse = new UpdateCustomerResponse();
+    updateCustomerResponse.setId(updatedCustomerEntity.getUuid());
+    updateCustomerResponse.setFirstName(updatedCustomerEntity.getFirstName());
+    updateCustomerResponse.setLastName(updatedCustomerEntity.getLastName());
+    updateCustomerResponse.status("CUSTOMER DETAILS UPDATED SUCCESSFULLY");
 
-        UpdateCustomerResponse updateCustomerResponse = new UpdateCustomerResponse();
-        updateCustomerResponse.setId(updatedCustomerEntity.getUuid());
-        updateCustomerResponse.setFirstName(updatedCustomerEntity.getFirstName());
-        updateCustomerResponse.setLastName(updatedCustomerEntity.getLastName());
-        updateCustomerResponse.status("CUSTOMER DETAILS UPDATED SUCCESSFULLY");
-
-        return new ResponseEntity<UpdateCustomerResponse>(updateCustomerResponse, HttpStatus.OK);
-    }
-
+    return new ResponseEntity<UpdateCustomerResponse>(updateCustomerResponse, HttpStatus.OK);
+  }
 }

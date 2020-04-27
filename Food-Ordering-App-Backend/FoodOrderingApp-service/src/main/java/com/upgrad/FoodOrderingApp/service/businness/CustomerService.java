@@ -103,76 +103,59 @@ public class CustomerService {
         return customerAuthEntity;
     }
 
-    /**
-     * This method implements the logic for 'logout' endpoint.
-     *
-     * @param accessToken Customer access token in 'Bearer <access-token>' format.
-     * @return Updated CustomerAuthEntity object.
-     * @throws AuthorizationFailedException if any of the validation fails on customer authorization.
-     */
-    @Transactional(propagation = Propagation.REQUIRED)
-    public CustomerAuthEntity logout(final String accessToken) throws AuthorizationFailedException {
+  /**
+   * This method implements the logic for 'logout' endpoint.
+   *
+   * @param accessToken Customers access token in 'Bearer <access-token>' format.
+   * @return Updated CustomerAuthEntity object.
+   * @throws AuthorizationFailedException if any of the validation fails on customer authorization.
+   */
+  @Transactional(propagation = Propagation.REQUIRED)
+  public CustomerAuthEntity logout(final String accessToken) throws AuthorizationFailedException {
+    CustomerAuthEntity customerAuthEntity = customerAuthDao.getCustomerAuthByToken(accessToken);
+    CustomerEntity customerEntity = getCustomer(accessToken);
+    customerAuthEntity.setCustomer(customerEntity);
+    customerAuthEntity.setLogoutAt(ZonedDateTime.now());
+    customerAuthDao.updateCustomerAuth(customerAuthEntity);
+    return customerAuthEntity;
+  }
 
-        // fetch the customer details from database using the access token of the customer
-        CustomerAuthEntity customerAuthEntity = customerAuthDao.getCustomerByAccessToken(accessToken);
+  /**
+   * This method checks if the token is valid.
+   *
+   * @param accessToken Takes access-token as input which is obtained during successful login.
+   * @return CustomerEntity - Customer who obtained this access-token during his login.
+   * @throws AuthorizationFailedException Based on token validity.
+   */
+  public CustomerEntity getCustomer(String accessToken) throws AuthorizationFailedException {
+    CustomerAuthEntity customerAuthEntity = customerAuthDao.getCustomerAuthByToken(accessToken);
+    if (customerAuthEntity != null) {
 
-        //if access token is not available in database throws AuthorizationFailedException with code "ATHR-001
-        if (customerAuthEntity == null) {
-            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
-        }
-        // if the customer is already logged out and trying to logout again then it will throw AuthorizationFailedException with code "ATHR-002"
-        if (customerAuthEntity.getLogoutAt() != null) {
-            throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
-        }
-        // if the customer's session is timed out then it will throw AuthorizationFailedException with code "ATHR-003"
-        if (customerAuthEntity.getExpiresAt().isBefore(ZonedDateTime.now())) {
-            throw new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint.");
-        }
-        // updates the logout time in the database
-        customerAuthEntity.setLogoutAt(ZonedDateTime.now());
-        customerAuthDao.updateCustomerAuth(customerAuthEntity);
+      if (customerAuthEntity.getLogoutAt() != null) {
+        throw new AuthorizationFailedException(
+            "ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
+      }
 
-        return customerAuthEntity;
+      if (ZonedDateTime.now().isAfter(customerAuthEntity.getExpiresAt())) {
+        throw new AuthorizationFailedException(
+            "ATHR-003", "Your session is expired. Log in again to access this endpoint.");
+      }
+      return customerAuthEntity.getCustomer();
+    } else {
+      throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
     }
+  }
 
-    /**
-     * This method helps to fetch the existing customer by using the access token.
-     *
-     * @param accessToken customers access token.
-     * @return CustomerEntity object.
-     * @throws AuthorizationFailedException if the access token provided by the customer is not valid.
-     */
-    public CustomerEntity getCustomer(final String accessToken) throws AuthorizationFailedException {
-        // fetch the customer from database using accessToken of the customer
-        CustomerAuthEntity customerAuthEntity = customerAuthDao.getCustomerByAccessToken(accessToken);
-
-        // if no customer with given access token then throws AuthorizationFailedException with code "ATHR-001
-        if (customerAuthEntity == null) {
-            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
-        }
-        // if customer is logged out then it throws AuthorizationFailedException with code "ATHR-002"
-        if (customerAuthEntity.getLogoutAt() != null) {
-            throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
-        }
-        // if customer's session is timed out then it throws AuthorizationFailedException with code "ATHR-003"
-        if (customerAuthEntity.getExpiresAt().isBefore(ZonedDateTime.now())) {
-            throw new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint.");
-        }
-
-        //returns the fetched customer with the given access token
-        return customerAuthEntity.getCustomer();
-    }
-
-    /**
-     * This method updates the customer details in database.
-     *
-     * @param customerEntity CustomerEntity object to update.
-     * @return Updated CustomerEntity object.
-     */
-    @Transactional(propagation = Propagation.REQUIRED)
-    public CustomerEntity updateCustomer(final CustomerEntity customerEntity) {
-        return customerDao.updateCustomer(customerEntity);
-    }
+  /**
+   * This method updates the customer details in database.
+   *
+   * @param customerEntity CustomerEntity object to update.
+   * @return Updated CustomerEntity object.
+   */
+  @Transactional(propagation = Propagation.REQUIRED)
+  public CustomerEntity updateCustomer(final CustomerEntity customerEntity) {
+    return customerDao.updateCustomer(customerEntity);
+  }
 
     // method checks for given contact number is already registered or not
     private boolean isContactNumberInUse(final String contactNumber) {
