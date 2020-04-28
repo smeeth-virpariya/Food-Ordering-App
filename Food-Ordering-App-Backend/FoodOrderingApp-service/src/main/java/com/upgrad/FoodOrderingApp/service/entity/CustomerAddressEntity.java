@@ -4,6 +4,8 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -12,6 +14,11 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "customer_address")
+@NamedQueries({
+  @NamedQuery(
+      name = "customerAddressByCustomer",
+      query = "SELECT ca FROM CustomerAddressEntity ca WHERE ca.customer = :customer")
+})
 public class CustomerAddressEntity implements Serializable {
 
   @Id
@@ -19,13 +26,17 @@ public class CustomerAddressEntity implements Serializable {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
-  @Column(name = "customer_id")
+  @ManyToOne
   @NotNull
-  private Integer customerId;
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "customer_id")
+  private CustomerEntity customer;
 
+  @ManyToOne
   @NotNull
-  @Column(name = "address_id")
-  private Integer addressId;
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinColumn(name = "address_id")
+  private AddressEntity address;
 
   public Integer getId() {
     return id;
@@ -35,20 +46,20 @@ public class CustomerAddressEntity implements Serializable {
     this.id = id;
   }
 
-  public Integer getCustomerId() {
-    return customerId;
+  public CustomerEntity getCustomer() {
+    return customer;
   }
 
-  public void setCustomerId(Integer customerId) {
-    this.customerId = customerId;
+  public void setCustomer(CustomerEntity customer) {
+    this.customer = customer;
   }
 
-  public Integer getAddressId() {
-    return addressId;
+  public AddressEntity getAddress() {
+    return address;
   }
 
-  public void setAddressId(Integer addressId) {
-    this.addressId = addressId;
+  public void setAddress(AddressEntity address) {
+    this.address = address;
   }
 
   @Override

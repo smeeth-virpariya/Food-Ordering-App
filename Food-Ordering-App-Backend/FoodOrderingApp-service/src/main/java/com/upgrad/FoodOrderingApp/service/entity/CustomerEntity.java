@@ -59,13 +59,6 @@ public class CustomerEntity implements Serializable {
   @Column(name = "salt")
   private String salt;
 
-  @OneToMany
-  @JoinTable(
-      name = "customer_address",
-      joinColumns = @JoinColumn(name = "customer_id"),
-      inverseJoinColumns = @JoinColumn(name = "address_id"))
-  private List<AddressEntity> addresses = new ArrayList<>();
-
   public String getFirstName() {
     return firstName;
   }
@@ -128,14 +121,6 @@ public class CustomerEntity implements Serializable {
 
   public void setSalt(String salt) {
     this.salt = salt;
-  }
-
-  public List<AddressEntity> getAddresses() {
-    return addresses;
-  }
-
-  public void setAddresses(List<AddressEntity> addresses) {
-    this.addresses = addresses;
   }
 
   @Override

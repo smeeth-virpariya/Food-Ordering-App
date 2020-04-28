@@ -14,6 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class AddressService {
 
@@ -38,7 +41,7 @@ public class AddressService {
     if (addressEntity.getActive() != null
         && !addressEntity.getLocality().isEmpty()
         && !addressEntity.getCity().isEmpty()
-        && !addressEntity.getFlatBuildingNumber().isEmpty()
+        && !addressEntity.getFlatBuilNo().isEmpty()
         && !addressEntity.getPincode().isEmpty()
         && addressEntity.getState() != null) {
       if (!isValidPinCode(addressEntity.getPincode())) {
@@ -48,13 +51,30 @@ public class AddressService {
       AddressEntity createdCustomerAddress = addressDao.createCustomerAddress(addressEntity);
 
       CustomerAddressEntity createdCustomerAddressEntity = new CustomerAddressEntity();
-      createdCustomerAddressEntity.setCustomerId(customerEntity.getId());
-      createdCustomerAddressEntity.setAddressId(createdCustomerAddress.getId());
+      createdCustomerAddressEntity.setCustomer(customerEntity);
+      createdCustomerAddressEntity.setAddress(createdCustomerAddress);
       customerAddressDao.createCustomerAddress(createdCustomerAddressEntity);
       return createdCustomerAddress;
     } else {
       throw new SaveAddressException("SAR-001", "No field can be empty");
     }
+  }
+
+  /**
+   * Returns all the addresses of a given customer.
+   *
+   * @param customerEntity Customer whose addresses are to be returned.
+   * @return List<AddressEntity> object.
+   */
+  public List<AddressEntity> getAllAddress(final CustomerEntity customerEntity) {
+    List<AddressEntity> addressEntityList = new ArrayList<>();
+    List<CustomerAddressEntity> customerAddressEntityList =
+        addressDao.customerAddressByCustomer(customerEntity);
+    if (customerAddressEntityList != null) {
+      customerAddressEntityList.forEach(
+          customerAddressEntity -> addressEntityList.add(customerAddressEntity.getAddress()));
+    }
+    return addressEntityList;
   }
 
   /**
