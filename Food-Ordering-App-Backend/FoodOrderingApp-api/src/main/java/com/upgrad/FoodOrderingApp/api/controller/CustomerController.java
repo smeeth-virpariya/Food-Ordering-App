@@ -177,4 +177,44 @@ public class CustomerController {
 
     return new ResponseEntity<UpdateCustomerResponse>(updateCustomerResponse, HttpStatus.OK);
   }
+
+  /**
+   * @param updatePasswordRequest this argument contains all the attributes required to update a
+   *     customer's password in the database.
+   * @param authorization customer access token in 'Bearer <access-token>' format.
+   * @return ResponseEntity<UpdatePasswordResponse> type object along with HttpStatus as OK.
+   * @throws AuthorizationFailedException if any of the validation on customer access token fails.
+   * @throws UpdateCustomerException if old or new password fields are empty.
+   */
+  @CrossOrigin
+  @RequestMapping(
+      method = RequestMethod.PUT,
+      path = "/customer/password",
+      produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
+      consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public ResponseEntity<UpdatePasswordResponse> changePassword(
+      @RequestBody(required = false) final UpdatePasswordRequest updatePasswordRequest,
+      @RequestHeader("authorization") final String authorization)
+      throws UpdateCustomerException, AuthorizationFailedException {
+
+    String oldPassword = updatePasswordRequest.getOldPassword();
+    String newPassword = updatePasswordRequest.getNewPassword();
+
+    if (!oldPassword.isEmpty() && !newPassword.isEmpty()) {
+      String accessToken = Utility.getTokenFromAuthorization(authorization);
+      CustomerEntity customerEntity = customerService.getCustomer(accessToken);
+
+      CustomerEntity updatedCustomerEntity =
+          customerService.updateCustomerPassword(oldPassword, newPassword, customerEntity);
+
+      UpdatePasswordResponse updatePasswordResponse =
+          new UpdatePasswordResponse()
+              .id(updatedCustomerEntity.getUuid())
+              .status("CUSTOMER PASSWORD UPDATED SUCCESSFULLY");
+
+      return new ResponseEntity<UpdatePasswordResponse>(updatePasswordResponse, HttpStatus.OK);
+    } else {
+      throw new UpdateCustomerException("UCR-003", "No field should be empty");
+    }
+  }
 }
