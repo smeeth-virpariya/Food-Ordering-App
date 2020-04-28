@@ -21,6 +21,7 @@ import java.io.Serializable;
 @Entity
 @Table(name = "item")
 @NamedNativeQueries({
+  // Using native query as named queries do not support LIMIT in nested statements.
   @NamedNativeQuery(
       name = "topFivePopularItemsByRestaurant",
       query =
