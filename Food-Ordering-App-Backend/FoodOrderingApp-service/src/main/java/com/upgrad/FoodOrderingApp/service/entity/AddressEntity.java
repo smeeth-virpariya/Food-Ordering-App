@@ -28,7 +28,7 @@ public class AddressEntity implements Serializable {
 
   @Column(name = "flat_buil_number")
   @Size(max = 255)
-  private String flatBuildingNumber;
+  private String flatBuilNo;
 
   @Column(name = "locality")
   @Size(max = 255)
@@ -43,32 +43,24 @@ public class AddressEntity implements Serializable {
   private String pincode;
 
   @ManyToOne
+  @OnDelete(action = OnDeleteAction.CASCADE)
   @JoinColumn(name = "state_id")
   private StateEntity state;
 
   @Column(name = "active")
   private Integer active;
 
-  // ToDo: Check if this can be done differently
-  @ManyToOne
-  @OnDelete(action = OnDeleteAction.CASCADE)
-  @JoinTable(
-      name = "customer_address",
-      joinColumns = @JoinColumn(name = "address_id"),
-      inverseJoinColumns = @JoinColumn(name = "customer_id"))
-  private CustomerEntity customer;
-
   public AddressEntity() {}
 
   public AddressEntity(
       @Size(max = 200) @NotNull String uuid,
-      @Size(max = 255) String flatBuildingNumber,
+      @Size(max = 255) String flatBuilNo,
       @Size(max = 255) String locality,
       @Size(max = 30) String city,
       @Size(max = 30) String pincode,
       StateEntity state) {
     this.uuid = uuid;
-    this.flatBuildingNumber = flatBuildingNumber;
+    this.flatBuilNo = flatBuilNo;
     this.locality = locality;
     this.city = city;
     this.pincode = pincode;
@@ -91,12 +83,12 @@ public class AddressEntity implements Serializable {
     this.uuid = uuid;
   }
 
-  public String getFlatBuildingNumber() {
-    return flatBuildingNumber;
+  public String getFlatBuilNo() {
+    return flatBuilNo;
   }
 
-  public void setFlatBuildingNumber(String flatBuildingNumber) {
-    this.flatBuildingNumber = flatBuildingNumber;
+  public void setFlatBuilNo(String flatBuilNo) {
+    this.flatBuilNo = flatBuilNo;
   }
 
   public String getLocality() {
@@ -137,14 +129,6 @@ public class AddressEntity implements Serializable {
 
   public void setActive(Integer active) {
     this.active = active;
-  }
-
-  public CustomerEntity getCustomer() {
-    return customer;
-  }
-
-  public void setCustomer(CustomerEntity customer) {
-    this.customer = customer;
   }
 
   @Override
