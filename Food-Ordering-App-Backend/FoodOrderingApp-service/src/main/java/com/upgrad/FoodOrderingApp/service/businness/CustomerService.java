@@ -111,9 +111,6 @@ public class CustomerService {
     customerAuthDao.createCustomerAuthToken(customerAuthEntity);
     return customerAuthEntity;
   }
-
-<<<<<<< HEAD
-=======
   /**
    * This method implements the logic for 'logout' endpoint.
    *
@@ -168,7 +165,6 @@ public class CustomerService {
     }
   }
 
->>>>>>> resolved all the conflicts inside CustomerService and CustomerAuthDao files
   // method checks for given contact number is already registered or not
   private boolean isContactNumberInUse(final String contactNumber) {
     return customerDao.getCustomerByContactNumber(contactNumber) != null;
