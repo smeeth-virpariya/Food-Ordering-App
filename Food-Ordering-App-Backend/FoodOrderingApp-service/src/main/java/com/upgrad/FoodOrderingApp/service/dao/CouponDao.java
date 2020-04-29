@@ -28,4 +28,21 @@ public class CouponDao {
       return null;
     }
   }
+
+  /**
+   * This method fetches CouponEntity from database based on the coupon id.
+   *
+   * @param couponId
+   * @return CouponEntity or null if there is no coupon in database by given id.
+   */
+  public CouponEntity getCouponByCouponId(String couponUUID) {
+    try {
+      return entityManager
+          .createNamedQuery("couponByUUID", CouponEntity.class)
+          .setParameter("couponUUID", couponUUID)
+          .getSingleResult();
+    } catch (NoResultException nre) {
+      return null;
+    }
+  }
 }

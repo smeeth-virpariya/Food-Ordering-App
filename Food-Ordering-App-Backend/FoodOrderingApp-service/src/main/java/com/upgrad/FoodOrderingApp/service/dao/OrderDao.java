@@ -1,7 +1,10 @@
 package com.upgrad.FoodOrderingApp.service.dao;
 
 import com.upgrad.FoodOrderingApp.service.entity.OrderEntity;
+import com.upgrad.FoodOrderingApp.service.entity.OrderItemEntity;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -29,5 +32,15 @@ public class OrderDao {
       return ordersByCustomer;
     }
     return Collections.emptyList();
+  }
+
+  public OrderEntity saveOrder(OrderEntity order) {
+    entityManager.persist(order);
+    return order;
+  }
+
+  public OrderItemEntity saveOrderItem(OrderItemEntity orderItemEntity) {
+    entityManager.persist(orderItemEntity);
+    return orderItemEntity;
   }
 }

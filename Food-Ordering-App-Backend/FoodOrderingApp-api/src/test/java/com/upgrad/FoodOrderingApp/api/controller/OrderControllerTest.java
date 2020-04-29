@@ -14,6 +14,7 @@ import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CouponEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.entity.OrderEntity;
+import com.upgrad.FoodOrderingApp.service.entity.OrderItemEntity;
 import com.upgrad.FoodOrderingApp.service.entity.PaymentEntity;
 import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
 import com.upgrad.FoodOrderingApp.service.entity.StateEntity;
@@ -66,7 +67,7 @@ public class OrderControllerTest {
 
     @MockBean
     private ItemService mockItemService;
-/*
+
     // ------------------------------------------ POST /order ------------------------------------------
 
     //This test case passes when you are able to save order successfully.
@@ -360,7 +361,7 @@ public class OrderControllerTest {
         verify(mockOrderService, times(0)).saveOrder(any());
         verify(mockOrderService, times(0)).saveOrderItem(any());
     }
-*/
+
     // ------------------------------------------ GET /order ------------------------------------------
 
     //This test case passes when you are able to retrieve all past orders placed by you
@@ -557,7 +558,7 @@ public class OrderControllerTest {
         verify(mockCustomerService, times(1)).getCustomer("database_accesstoken2");
         verify(mockOrderService, times(1)).getCouponByCouponName("myCoupon");
     }
-/*
+
     // ------------------------------------------ POJO Builder ------------------------------------------
 
     private SaveOrderRequest getSaveOrderRequest() {
@@ -588,7 +589,7 @@ public class OrderControllerTest {
 
         return request;
     }
-*/
+
     private OrderEntity getOrderEntity(final CustomerEntity customerEntity) {
         final String stateId = UUID.randomUUID().toString();
         final StateEntity stateEntity = new StateEntity(stateId, "someState");

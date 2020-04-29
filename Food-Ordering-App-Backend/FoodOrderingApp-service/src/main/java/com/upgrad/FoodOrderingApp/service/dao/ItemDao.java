@@ -5,9 +5,11 @@ import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 @Repository
 public class ItemDao {
@@ -30,5 +32,18 @@ public class ItemDao {
       return items;
     }
     return Collections.emptyList();
+  }
+
+  public ItemEntity getItemByUUID(String itemUUID) {
+    try {
+      ItemEntity item =
+          entityManager
+              .createNamedQuery("itemByUUID", ItemEntity.class)
+              .setParameter("itemUUID", itemUUID)
+              .getSingleResult();
+      return item;
+    } catch (NoResultException nre) {
+      return null;
+    }
   }
 }

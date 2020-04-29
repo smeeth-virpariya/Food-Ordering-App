@@ -30,7 +30,7 @@ public class AddressDao {
   }
 
   /**
-   * fetches all the addresses of a given customer.
+   * <<<<<<< HEAD fetches all the addresses of a given customer.
    *
    * @param customer whose detals to be fetched.
    * @return List of CustomerAddressEntity type object.
@@ -45,17 +45,17 @@ public class AddressDao {
       return null;
     }
   }
-
-  /**
-   * This method helps to fetch address of the customer by using address uuid
+  /*
+   * This method fetches the address from Database based on address UUID.
    *
-   * @return AddressEntity type object.
+   * @param addressUUID UUID of the address to be fetched.
+   * @return AddressEntity
    */
-  public AddressEntity getAddressByUUID(final String addressId) {
+  public AddressEntity getAddressByUUID(final String addressUUID) {
     try {
       return entityManager
           .createNamedQuery("addressByUUID", AddressEntity.class)
-          .setParameter("addressId", addressId)
+          .setParameter("addressUUID", addressUUID)
           .getSingleResult();
     } catch (NoResultException nre) {
       return null;

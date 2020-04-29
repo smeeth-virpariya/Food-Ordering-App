@@ -13,6 +13,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedNativeQueries;
 import javax.persistence.NamedNativeQuery;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -32,6 +34,11 @@ import java.io.Serializable;
               + "order by (count(order_item.order_id)) "
               + "desc LIMIT 5)",
       resultClass = ItemEntity.class)
+})
+@NamedQueries({
+  @NamedQuery(
+      name = "itemByUUID",
+      query = "select i from ItemEntity i where i.uuid=:itemUUID")
 })
 public class ItemEntity implements Serializable {
   @Id
