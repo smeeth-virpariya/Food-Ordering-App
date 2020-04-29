@@ -23,11 +23,16 @@ public class CustomerAuthDao {
   }
 
   /**
+<<<<<<< HEAD
    * This method fetches CustomerAuthEntity based on access-token
    *
    * @param accessToken access-token obtained during successful login.
    * @return CustomerAuthEntity or null of token not found in database. This method helps to find
    *     the customer using the access token.
+=======
+   * This method helps to find the customer using the access token.
+   *
+>>>>>>> Closes #8 added code for /address/{address_id} end point api to delete the address of a customer if no orders placed using the given address
    * @param accessToken the access token which will be searched in database to find the customer.
    * @return CustomerAuthEntity object if given access token exists in the database.
    */

@@ -2,12 +2,11 @@ package com.upgrad.FoodOrderingApp.service.businness;
 
 import com.upgrad.FoodOrderingApp.service.dao.AddressDao;
 import com.upgrad.FoodOrderingApp.service.dao.CustomerAddressDao;
+import com.upgrad.FoodOrderingApp.service.dao.OrdersDao;
 import com.upgrad.FoodOrderingApp.service.dao.StateDao;
-import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
-import com.upgrad.FoodOrderingApp.service.entity.CustomerAddressEntity;
-import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
-import com.upgrad.FoodOrderingApp.service.entity.StateEntity;
+import com.upgrad.FoodOrderingApp.service.entity.*;
 import com.upgrad.FoodOrderingApp.service.exception.AddressNotFoundException;
+import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.SaveAddressException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -25,6 +24,8 @@ public class AddressService {
   @Autowired private AddressDao addressDao;
 
   @Autowired private CustomerAddressDao customerAddressDao;
+
+  @Autowired private OrdersDao ordersDao;
 
   /**
    * This method implements the logic for 'saving the address' endpoint.
@@ -75,6 +76,49 @@ public class AddressService {
           customerAddressEntity -> addressEntityList.add(customerAddressEntity.getAddress()));
     }
     return addressEntityList;
+  }
+
+  /**
+   * Deletes given address from database if no orders placed using the given address.
+   *
+   * @param addressEntity Address to delete.
+   * @return AddressEntity type object.
+   */
+  @Transactional(propagation = Propagation.REQUIRED)
+  public AddressEntity deleteAddress(final AddressEntity addressEntity) {
+    final List<OrderEntity> orders = ordersDao.getAllOrdersByAddress(addressEntity);
+    if (orders == null || orders.isEmpty()) {
+      return addressDao.deleteAddress(addressEntity);
+    }
+    addressEntity.setActive(0);
+    return addressDao.updateAddress(addressEntity);
+  }
+
+  /**
+   * This method implements logic for getting the Address using address uuid.
+   *
+   * @param addressId Address UUID.
+   * @param customerEntity Customer whose addresses has to be fetched.
+   * @return AddressEntity object.
+   * @throws AddressNotFoundException If any validation on address fails.
+   * @throws AuthorizationFailedException If any validation on customer fails.
+   */
+  public AddressEntity getAddressByUUID(final String addressId, final CustomerEntity customerEntity)
+      throws AuthorizationFailedException, AddressNotFoundException {
+    AddressEntity addressEntity = addressDao.getAddressByUUID(addressId);
+    if (addressId.isEmpty()) {
+      throw new AddressNotFoundException("ANF-005", "Address id can not be empty");
+    }
+    if (addressEntity == null) {
+      throw new AddressNotFoundException("ANF-003", "No address by this id");
+    }
+    CustomerAddressEntity customerAddressEntity =
+        customerAddressDao.customerAddressByAddress(addressEntity);
+    if (!customerAddressEntity.getCustomer().getUuid().equals(customerEntity.getUuid())) {
+      throw new AuthorizationFailedException(
+          "ATHR-004", "You are not authorized to view/update/delete any one else's address");
+    }
+    return addressEntity;
   }
 
   /**

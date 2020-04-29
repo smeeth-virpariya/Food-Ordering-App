@@ -209,7 +209,6 @@ public class AddressControllerTest {
   // ------------------------------------------
 
   // This test case passes when you can successfully delete an address.
-  /*
       @Test
       public void shouldDeleteAddress() throws Exception {
           final CustomerEntity customerEntity = new CustomerEntity();
@@ -328,7 +327,7 @@ public class AddressControllerTest {
           verify(mockAddressService, times(1)).getAddressByUUID("82849cd5-106e-4b34-b9bf-94954c6ff527", customerEntity);
           verify(mockAddressService, times(0)).deleteAddress(any());
       }
-*/
+
       // ------------------------------------------ GET /address/customer ------------------------------------------
       //This test case passes when you are able to retrieve all the saved address of a customer.
       @Test

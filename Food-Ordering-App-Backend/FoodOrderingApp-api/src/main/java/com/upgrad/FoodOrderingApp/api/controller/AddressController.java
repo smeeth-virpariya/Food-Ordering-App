@@ -101,4 +101,34 @@ public class AddressController {
     }
     return new ResponseEntity<AddressListResponse>(addressListResponse, HttpStatus.OK);
   }
+
+  /**
+   * This api endpoint is used to delete customer address from database if no order from the given
+   * address.
+   *
+   * @param addressId Address uuid is used to fetch the correct address.
+   * @param authorization customer login access token in 'Bearer <access-token>' format.
+   * @return ResponseEntity<DeleteAddResponse> with HttpStatus as OK
+   */
+  @CrossOrigin
+  @RequestMapping(
+      path = "/address/{address_id}",
+      method = RequestMethod.DELETE,
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  public ResponseEntity<DeleteAddressResponse> deleteAddress(
+      @RequestHeader("authorization") final String authorization,
+      @PathVariable("address_id") final String addressId)
+      throws AuthorizationFailedException, AddressNotFoundException {
+    final String accessToken = Utility.getTokenFromAuthorization(authorization);
+    final CustomerEntity customerEntity = customerService.getCustomer(accessToken);
+    AddressEntity addressEntity = addressService.getAddressByUUID(addressId, customerEntity);
+    final AddressEntity deletedAddressEntity = new AddressEntity();
+    deletedAddressEntity.setUuid(UUID.randomUUID().toString());
+    final AddressEntity deleteAddress = addressService.deleteAddress(addressEntity);
+    final DeleteAddressResponse deleteAddressResponse =
+        new DeleteAddressResponse()
+            .id(UUID.fromString(deleteAddress.getUuid()))
+            .status("ADDRESS DELETED SUCCESSFULLY");
+    return new ResponseEntity<DeleteAddressResponse>(deleteAddressResponse, HttpStatus.OK);
+  }
 }
