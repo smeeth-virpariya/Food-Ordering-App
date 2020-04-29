@@ -122,6 +122,15 @@ public class AddressService {
   }
 
   /**
+   * This method implements the logic to get All the States from database.
+   *
+   * @return List<StateEntity> object.
+   */
+  public List<StateEntity> getAllStates() {
+    return stateDao.getAllStates();
+  }
+
+  /**
    * Returns state for a given UUID
    *
    * @param stateUuid UUID of the state entity
