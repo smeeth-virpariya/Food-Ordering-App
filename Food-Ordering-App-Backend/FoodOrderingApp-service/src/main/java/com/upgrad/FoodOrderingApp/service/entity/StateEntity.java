@@ -18,42 +18,34 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "coupon")
+@Table(name = "state")
 @NamedQueries({
   @NamedQuery(
-      name = "couponByName",
-      query = "select c from CouponEntity c where c.couponName=:couponName")
+      name = "getStateByUuid",
+      query = "select s from StateEntity s where s.uuid=:stateUuid")
 })
-public class CouponEntity implements Serializable {
+public class StateEntity implements Serializable {
 
   @Id
-  @Column(name = "id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id")
   private Integer id;
 
-  @Column(name = "uuid", unique = true)
-  @NotNull
   @Size(max = 200)
+  @NotNull
+  @Column(name = "uuid", unique = true)
   private String uuid;
 
-  @Column(name = "coupon_name")
-  @NotNull
-  @Size(max = 255)
-  private String couponName;
+  @Size(max = 30)
+  @Column(name = "state_name")
+  private String stateName;
 
-  @Column(name = "percent")
-  @NotNull
-  private Integer percent;
+  public StateEntity() {}
 
-  public CouponEntity() {}
-
-  public CouponEntity(
-      @NotNull @Size(max = 200) String uuid,
-      @NotNull @Size(max = 255) String couponName,
-      @NotNull Integer percent) {
+  public StateEntity(
+      @NotNull @Size(max = 200) String uuid, @NotNull @Size(max = 30) String stateName) {
     this.uuid = uuid;
-    this.couponName = couponName;
-    this.percent = percent;
+    this.stateName = stateName;
   }
 
   public Integer getId() {
@@ -72,20 +64,12 @@ public class CouponEntity implements Serializable {
     this.uuid = uuid;
   }
 
-  public String getCouponName() {
-    return couponName;
+  public String getStateName() {
+    return stateName;
   }
 
-  public void setCouponName(String couponName) {
-    this.couponName = couponName;
-  }
-
-  public Integer getPercent() {
-    return percent;
-  }
-
-  public void setPercent(Integer percent) {
-    this.percent = percent;
+  public void setStateName(String stateName) {
+    this.stateName = stateName;
   }
 
   @Override

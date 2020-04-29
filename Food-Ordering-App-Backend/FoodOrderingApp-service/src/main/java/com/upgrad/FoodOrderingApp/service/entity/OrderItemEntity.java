@@ -10,50 +10,49 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "coupon")
-@NamedQueries({
-  @NamedQuery(
-      name = "couponByName",
-      query = "select c from CouponEntity c where c.couponName=:couponName")
-})
-public class CouponEntity implements Serializable {
-
+@Table(name = "order_item")
+public class OrderItemEntity implements Serializable {
   @Id
   @Column(name = "id")
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Integer id;
 
-  @Column(name = "uuid", unique = true)
   @NotNull
-  @Size(max = 200)
-  private String uuid;
+  @ManyToOne
+  @JoinColumn(name = "order_id")
+  private OrderEntity order;
 
-  @Column(name = "coupon_name")
   @NotNull
-  @Size(max = 255)
-  private String couponName;
+  @ManyToOne
+  @JoinColumn(name = "item_id")
+  private ItemEntity item;
 
-  @Column(name = "percent")
   @NotNull
-  private Integer percent;
+  @Column(name = "quantity")
+  private Integer quantity;
 
-  public CouponEntity() {}
+  @NotNull
+  @Column(name = "price")
+  private Integer price;
 
-  public CouponEntity(
-      @NotNull @Size(max = 200) String uuid,
-      @NotNull @Size(max = 255) String couponName,
-      @NotNull Integer percent) {
-    this.uuid = uuid;
-    this.couponName = couponName;
-    this.percent = percent;
+  public OrderItemEntity() {}
+
+  public OrderItemEntity(
+      @NotNull OrderEntity order,
+      @NotNull ItemEntity item,
+      @NotNull Integer quantity,
+      @NotNull Integer price) {
+    this.order = order;
+    this.item = item;
+    this.quantity = quantity;
+    this.price = price;
   }
 
   public Integer getId() {
@@ -64,28 +63,36 @@ public class CouponEntity implements Serializable {
     this.id = id;
   }
 
-  public String getUuid() {
-    return uuid;
+  public OrderEntity getOrder() {
+    return order;
   }
 
-  public void setUuid(String uuid) {
-    this.uuid = uuid;
+  public void setOrder(OrderEntity order) {
+    this.order = order;
   }
 
-  public String getCouponName() {
-    return couponName;
+  public ItemEntity getItem() {
+    return item;
   }
 
-  public void setCouponName(String couponName) {
-    this.couponName = couponName;
+  public void setItem(ItemEntity item) {
+    this.item = item;
   }
 
-  public Integer getPercent() {
-    return percent;
+  public Integer getQuantity() {
+    return quantity;
   }
 
-  public void setPercent(Integer percent) {
-    this.percent = percent;
+  public void setQuantity(Integer quantity) {
+    this.quantity = quantity;
+  }
+
+  public Integer getPrice() {
+    return price;
+  }
+
+  public void setPrice(Integer price) {
+    this.price = price;
   }
 
   @Override

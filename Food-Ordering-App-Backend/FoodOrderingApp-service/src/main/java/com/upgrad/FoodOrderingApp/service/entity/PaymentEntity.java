@@ -10,21 +10,14 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 @Entity
-@Table(name = "coupon")
-@NamedQueries({
-  @NamedQuery(
-      name = "couponByName",
-      query = "select c from CouponEntity c where c.couponName=:couponName")
-})
-public class CouponEntity implements Serializable {
+@Table(name = "payment")
+public class PaymentEntity implements Serializable {
 
   @Id
   @Column(name = "id")
@@ -36,24 +29,17 @@ public class CouponEntity implements Serializable {
   @Size(max = 200)
   private String uuid;
 
-  @Column(name = "coupon_name")
+  @Column(name = "payment_name")
   @NotNull
   @Size(max = 255)
-  private String couponName;
+  private String paymentName;
 
-  @Column(name = "percent")
-  @NotNull
-  private Integer percent;
+  public PaymentEntity() {}
 
-  public CouponEntity() {}
-
-  public CouponEntity(
-      @NotNull @Size(max = 200) String uuid,
-      @NotNull @Size(max = 255) String couponName,
-      @NotNull Integer percent) {
+  public PaymentEntity(
+      @NotNull @Size(max = 200) String uuid, @NotNull @Size(max = 255) String paymentName) {
     this.uuid = uuid;
-    this.couponName = couponName;
-    this.percent = percent;
+    this.paymentName = paymentName;
   }
 
   public Integer getId() {
@@ -72,20 +58,12 @@ public class CouponEntity implements Serializable {
     this.uuid = uuid;
   }
 
-  public String getCouponName() {
-    return couponName;
+  public String getPaymentName() {
+    return paymentName;
   }
 
-  public void setCouponName(String couponName) {
-    this.couponName = couponName;
-  }
-
-  public Integer getPercent() {
-    return percent;
-  }
-
-  public void setPercent(Integer percent) {
-    this.percent = percent;
+  public void setPaymentName(String paymentName) {
+    this.paymentName = paymentName;
   }
 
   @Override
