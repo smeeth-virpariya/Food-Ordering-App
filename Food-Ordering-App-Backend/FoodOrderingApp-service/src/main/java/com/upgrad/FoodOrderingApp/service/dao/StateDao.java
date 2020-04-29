@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.util.List;
 
 /**
  * StateDao class provides the database access for all the required endpoints inside the address
@@ -31,5 +32,14 @@ public class StateDao {
     } catch (NoResultException nre) {
       return null;
     }
+  }
+
+  /**
+   * This method fetch all states from database.
+   *
+   * @return List<StateEntity> object.
+   */
+  public List<StateEntity> getAllStates() {
+    return entityManager.createNamedQuery("getAllStates", StateEntity.class).getResultList();
   }
 }
