@@ -22,4 +22,5 @@ public class ItemService {
   public List<ItemEntity> getItemsByPopularity(RestaurantEntity restaurantEntity) {
     return itemDao.getOrdersByRestaurant(restaurantEntity);
   }
+
 }

@@ -1,16 +1,21 @@
 package com.upgrad.FoodOrderingApp.service.businness;
 
 import com.upgrad.FoodOrderingApp.service.dao.CouponDao;
+import com.upgrad.FoodOrderingApp.service.dao.OrderDao;
 import com.upgrad.FoodOrderingApp.service.entity.CouponEntity;
+import com.upgrad.FoodOrderingApp.service.entity.OrderEntity;
 import com.upgrad.FoodOrderingApp.service.exception.CouponNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class OrderService {
 
   @Autowired private CouponDao couponDao;
 
+  @Autowired private OrderDao orderDao;
   /**
    * This method contains business logic to get coupon details by coupon name.
    *
@@ -31,5 +36,15 @@ public class OrderService {
     }
 
     return couponEntity;
+  }
+
+  /**
+   * Fetches the orders of the customer in a sorted manner with latest order being on the top.
+   *
+   * @param customerUUID customer whose orders are to be fetched.
+   * @return list of orders made by customer
+   */
+  public List<OrderEntity> getOrdersByCustomers(String customerUUID) {
+    return orderDao.getOrdersByCustomers(customerUUID);
   }
 }
