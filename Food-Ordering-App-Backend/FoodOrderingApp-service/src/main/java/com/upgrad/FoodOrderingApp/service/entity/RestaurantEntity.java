@@ -1,16 +1,15 @@
 package com.upgrad.FoodOrderingApp.service.entity;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -18,13 +17,22 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 @Entity
 @Table(name = "restaurant")
 @NamedQueries({
-  @NamedQuery(
-      name = "restaurantByUUID",
-      query = "select r from RestaurantEntity r where r.uuid=:uuid")
+        @NamedQuery(
+                name = "restaurantByUUID",
+                query = "select r from RestaurantEntity r where r.uuid=:uuid"),
+        @NamedQuery(
+                name = "getAllRestaurants",
+                query = "select r from RestaurantEntity r")
 })
 public class RestaurantEntity implements Serializable {
 
@@ -64,6 +72,17 @@ public class RestaurantEntity implements Serializable {
   @NotNull
   @JoinColumn(name = "address_id")
   private AddressEntity address;
+
+
+  @ManyToMany(fetch = FetchType.LAZY,
+          cascade = {
+                  CascadeType.PERSIST,
+                  CascadeType.MERGE
+          })
+  @JoinTable(name = "restaurant_category",
+          joinColumns = { @JoinColumn(name = "restaurant_id") },
+          inverseJoinColumns = { @JoinColumn(name = "category_id") })
+  private List<CategoryEntity> categories = new ArrayList<>();
 
   public Integer getId() {
     return id;
@@ -127,6 +146,14 @@ public class RestaurantEntity implements Serializable {
 
   public void setAddress(AddressEntity address) {
     this.address = address;
+  }
+
+  public List<CategoryEntity> getCategories() {
+    return categories;
+  }
+
+  public void setCategories(List<CategoryEntity> categories) {
+    this.categories = categories;
   }
 
   @Override
