@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.UUID;
 
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -208,7 +209,6 @@ public class AddressControllerTest {
   // ------------------------------------------
 
   // This test case passes when you can successfully delete an address.
-  /*
       @Test
       public void shouldDeleteAddress() throws Exception {
           final CustomerEntity customerEntity = new CustomerEntity();
@@ -329,7 +329,6 @@ public class AddressControllerTest {
       }
 
       // ------------------------------------------ GET /address/customer ------------------------------------------
-
       //This test case passes when you are able to retrieve all the saved address of a customer.
       @Test
       public void shouldGetAllAddresses() throws Exception {
@@ -411,7 +410,7 @@ public class AddressControllerTest {
                   .thenThrow(new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint."));
 
           mockMvc
-                  .perform(delete("/address/customer")
+                  .perform(get("/address/customer")
                           .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
                           .header("authorization", "Bearer database_accesstoken1"))
                   .andExpect(status().isForbidden())
@@ -455,5 +454,4 @@ public class AddressControllerTest {
           final StatesListResponse statesLists = new ObjectMapper().readValue(response, StatesListResponse.class);
           assertNull(statesLists.getStates());
       }
-  */
 }

@@ -138,6 +138,7 @@ public class CustomerEntity implements Serializable {
     this.addresses = addresses;
   }
 
+  @Override
   public boolean equals(Object obj) {
     return new EqualsBuilder().append(this, obj).isEquals();
   }
