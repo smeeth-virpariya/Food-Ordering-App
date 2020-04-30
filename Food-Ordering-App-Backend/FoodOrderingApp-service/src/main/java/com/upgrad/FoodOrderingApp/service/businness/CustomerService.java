@@ -139,7 +139,6 @@ public class CustomerService {
     return customerDao.updateCustomer(customerEntity);
   }
 
-
   /**
    * This method checks if the token is valid.
    * @param accessToken Takes access-token as input which is obtained during successful login.
@@ -162,6 +161,34 @@ public class CustomerService {
       return customerAuthEntity.getCustomer();
     } else {
       throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
+    }
+  }
+
+  /**
+   * This method updates password of the given customer.
+   *
+   * @param oldPassword Customer's old password.
+   * @param newPassword Customer's new password.
+   * @param customerEntity CustomerEntity object to update the password.
+   * @return Updated CustomerEntity object.
+   * @throws UpdateCustomerException If any of the validation for old or new password fails.
+   */
+  @Transactional(propagation = Propagation.REQUIRED)
+  public CustomerEntity updateCustomerPassword(
+      final String oldPassword, final String newPassword, final CustomerEntity customerEntity)
+      throws UpdateCustomerException {
+    if (isValidPassword(newPassword)) {
+      String oldEncryptedPassword =
+          PasswordCryptographyProvider.encrypt(oldPassword, customerEntity.getSalt());
+      if (!oldEncryptedPassword.equals(customerEntity.getPassword())) {
+        throw new UpdateCustomerException("UCR-004", "Incorrect old password!");
+      }
+      String[] encryptedText = passwordCryptographyProvider.encrypt(newPassword);
+      customerEntity.setSalt(encryptedText[0]);
+      customerEntity.setPassword(encryptedText[1]);
+      return customerDao.updateCustomer(customerEntity);
+    } else {
+      throw new UpdateCustomerException("UCR-001", "Weak password!");
     }
   }
 

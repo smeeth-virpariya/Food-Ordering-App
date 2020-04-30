@@ -367,7 +367,6 @@ public class CustomerControllerTest {
     // ----------------------------- PUT /customer/password --------------------------------
 
     //This test case passes when you are able to update your password successfully.
-    /*
     @Test
     public void shouldUpdateCustomerPassword() throws Exception {
         final CustomerEntity customerEntity = new CustomerEntity();
@@ -488,5 +487,4 @@ public class CustomerControllerTest {
         verify(mockCustomerService, times(1)).getCustomer("auth");
         verify(mockCustomerService, times(1)).updateCustomerPassword("oldPwd", "newPwd", customerEntity);
     }
-*/
 }
