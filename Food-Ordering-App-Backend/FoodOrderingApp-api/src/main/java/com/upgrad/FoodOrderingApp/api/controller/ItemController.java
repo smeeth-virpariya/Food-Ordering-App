@@ -4,7 +4,6 @@ import com.upgrad.FoodOrderingApp.api.model.ItemList;
 import com.upgrad.FoodOrderingApp.api.model.ItemListResponse;
 import com.upgrad.FoodOrderingApp.service.businness.ItemService;
 import com.upgrad.FoodOrderingApp.service.businness.RestaurantService;
-import com.upgrad.FoodOrderingApp.service.common.ItemType;
 import com.upgrad.FoodOrderingApp.service.entity.ItemEntity;
 import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
 import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
@@ -28,6 +27,13 @@ public class ItemController {
   @Autowired private ItemService itemService;
   @Autowired private RestaurantService restaurantService;
 
+  /**
+   * This method gets top five popular items of a restaurant based on number of times it is ordered.
+   *
+   * @param restaurantId UUID for the restaurant
+   * @return
+   * @throws RestaurantNotFoundException If restaurant with UUID doesn't exist in the database
+   */
   @CrossOrigin
   @RequestMapping(
       method = RequestMethod.GET,

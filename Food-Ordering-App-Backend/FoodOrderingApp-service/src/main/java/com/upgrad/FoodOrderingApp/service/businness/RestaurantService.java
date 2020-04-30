@@ -14,8 +14,16 @@ public class RestaurantService {
 
     @Autowired
     private RestaurantDao restaurantDao;
-
-    public RestaurantEntity restaurantByUUID(String uuid) throws RestaurantNotFoundException {
+  
+  
+  /**
+   * This method gets the restaurant details.
+   *
+   * @param uuid UUID of the restaurant.
+   * @return
+   * @throws RestaurantNotFoundException if restaurant with UUID doesn't exist in the database.
+   */
+  public RestaurantEntity restaurantByUUID(String uuid) throws RestaurantNotFoundException {
         RestaurantEntity restaurant = restaurantDao.restaurantByUUID(uuid);
         if (restaurant == null) {
             throw new RestaurantNotFoundException("RNF-001", "No restaurant by this id");
@@ -31,8 +39,11 @@ public class RestaurantService {
      */
     public List<RestaurantEntity> getAllRestaurants() {
 
+
         return restaurantDao.getRestaurants();
-    }
+
+
+  }
 
     /**
      * Gets all the restaurants in  DB.
