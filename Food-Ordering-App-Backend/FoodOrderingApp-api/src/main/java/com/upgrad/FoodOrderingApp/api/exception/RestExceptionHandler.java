@@ -2,7 +2,16 @@ package com.upgrad.FoodOrderingApp.api.exception;
 
 import com.upgrad.FoodOrderingApp.api.model.ErrorResponse;
 
-import com.upgrad.FoodOrderingApp.service.exception.*;
+import com.upgrad.FoodOrderingApp.service.exception.AddressNotFoundException;
+import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
+import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
+import com.upgrad.FoodOrderingApp.service.exception.CouponNotFoundException;
+import com.upgrad.FoodOrderingApp.service.exception.ItemNotFoundException;
+import com.upgrad.FoodOrderingApp.service.exception.PaymentMethodNotFoundException;
+import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
+import com.upgrad.FoodOrderingApp.service.exception.SaveAddressException;
+import com.upgrad.FoodOrderingApp.service.exception.SignUpRestrictedException;
+import com.upgrad.FoodOrderingApp.service.exception.UpdateCustomerException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -123,7 +132,8 @@ public class RestExceptionHandler {
   }
 
   /**
-   * Exception handler for SaveAddressException
+   * <<<<<<< HEAD Exception handler for SaveAddressException ======= Exception handler for
+   * CouponNotFoundException >>>>>>> Closes #20 Order Controller - Save Order
    *
    * @return ResponseEntity<ErrorResponse> type object displaying error code and error message along
    *     * with HttpStatus as BAD_REQUEST.
@@ -134,5 +144,33 @@ public class RestExceptionHandler {
     return new ResponseEntity<ErrorResponse>(
         new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()),
         HttpStatus.BAD_REQUEST);
+  }
+
+  /**
+   * Exception handler for PaymentMethodNotFoundException
+   *
+   * @return ResponseEntity<ErrorResponse> type object displaying error code and error message along
+   *     with HttpStatus as BAD_REQUEST.
+   */
+  @ExceptionHandler(PaymentMethodNotFoundException.class)
+  public ResponseEntity<ErrorResponse> saveAddressException(
+      PaymentMethodNotFoundException exception, WebRequest request) {
+    return new ResponseEntity<ErrorResponse>(
+        new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()),
+        HttpStatus.NOT_FOUND);
+  }
+
+  /**
+   * Exception handler for ItemNotFoundException
+   *
+   * @return ResponseEntity<ErrorResponse> type object displaying error code and error message along
+   *     with HttpStatus as BAD_REQUEST.
+   */
+  @ExceptionHandler(ItemNotFoundException.class)
+  public ResponseEntity<ErrorResponse> itemNotFoundException(
+      ItemNotFoundException exception, WebRequest request) {
+    return new ResponseEntity<ErrorResponse>(
+        new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()),
+        HttpStatus.NOT_FOUND);
   }
 }

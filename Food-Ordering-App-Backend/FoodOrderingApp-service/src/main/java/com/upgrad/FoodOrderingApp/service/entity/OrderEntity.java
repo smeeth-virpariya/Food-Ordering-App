@@ -7,18 +7,37 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "orders")
 @NamedQueries({
   @NamedQuery(
       name = "allOrdersByAddress",
-      query = "select o from OrderEntity o where o.address=:address")
+      query = "select o from OrderEntity o where o.address=:address"),
+  @NamedQuery(
+      name = "getOrdersByCustomer",
+      query = "select o from OrderEntity o where o.customer.uuid=:customerUUID")
 })
 public class OrderEntity implements Serializable {
 
@@ -55,7 +74,7 @@ public class OrderEntity implements Serializable {
   @ManyToOne
   @JoinColumn(name = "customer_id")
   @OnDelete(action = OnDeleteAction.CASCADE)
-  private CustomerEntity customerEntity;
+  private CustomerEntity customer;
 
   @ManyToOne
   @JoinColumn(name = "address_id")
@@ -66,6 +85,9 @@ public class OrderEntity implements Serializable {
   @OnDelete(action = OnDeleteAction.CASCADE)
   private RestaurantEntity restaurant;
 
+  @OneToMany(mappedBy = "order", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+  private List<OrderItemEntity> orderItems = new ArrayList<>();
+
   public OrderEntity() {}
 
   public OrderEntity(
@@ -73,7 +95,7 @@ public class OrderEntity implements Serializable {
       @NotNull Double bill,
       CouponEntity coupon,
       @NotNull Double discount,
-      @NotNull ZonedDateTime date,
+      @NotNull Date date,
       PaymentEntity payment,
       CustomerEntity customerEntity,
       AddressEntity address,
@@ -82,9 +104,9 @@ public class OrderEntity implements Serializable {
     this.bill = bill;
     this.coupon = coupon;
     this.discount = discount;
-    this.date = date;
+    this.date = date.toInstant().atZone(ZoneId.systemDefault());
     this.payment = payment;
-    this.customerEntity = customerEntity;
+    this.customer = customerEntity;
     this.address = address;
     this.restaurant = restaurant;
   }
@@ -145,12 +167,12 @@ public class OrderEntity implements Serializable {
     this.payment = payment;
   }
 
-  public CustomerEntity getCustomerEntity() {
-    return customerEntity;
+  public CustomerEntity getCustomer() {
+    return customer;
   }
 
-  public void setCustomerEntity(CustomerEntity customerEntity) {
-    this.customerEntity = customerEntity;
+  public void setCustomer(CustomerEntity customerEntity) {
+    this.customer = customerEntity;
   }
 
   public AddressEntity getAddress() {
@@ -167,6 +189,14 @@ public class OrderEntity implements Serializable {
 
   public void setRestaurant(RestaurantEntity restaurant) {
     this.restaurant = restaurant;
+  }
+
+  public List<OrderItemEntity> getOrderItems() {
+    return orderItems;
+  }
+
+  public void setOrderItems(List<OrderItemEntity> orderItems) {
+    this.orderItems = orderItems;
   }
 
   @Override

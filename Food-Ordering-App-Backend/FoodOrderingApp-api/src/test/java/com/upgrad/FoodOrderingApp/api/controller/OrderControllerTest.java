@@ -4,10 +4,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.upgrad.FoodOrderingApp.api.model.CustomerOrderResponse;
 import com.upgrad.FoodOrderingApp.api.model.ItemQuantity;
 import com.upgrad.FoodOrderingApp.api.model.SaveOrderRequest;
+import com.upgrad.FoodOrderingApp.service.businness.AddressService;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
+import com.upgrad.FoodOrderingApp.service.businness.ItemService;
 import com.upgrad.FoodOrderingApp.service.businness.OrderService;
+import com.upgrad.FoodOrderingApp.service.businness.PaymentService;
+import com.upgrad.FoodOrderingApp.service.businness.RestaurantService;
+import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CouponEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
+import com.upgrad.FoodOrderingApp.service.entity.OrderEntity;
+import com.upgrad.FoodOrderingApp.service.entity.OrderItemEntity;
+import com.upgrad.FoodOrderingApp.service.entity.PaymentEntity;
+import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
+import com.upgrad.FoodOrderingApp.service.entity.StateEntity;
 import com.upgrad.FoodOrderingApp.service.exception.*;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +40,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.Assert.assertEquals;
 
 // This class contains all the test cases regarding the order controller
 @RunWith(SpringRunner.class)
@@ -44,7 +55,7 @@ public class OrderControllerTest {
 
     @MockBean
     private CustomerService mockCustomerService;
-/*
+
     @MockBean
     private PaymentService mockPaymentService;
 
@@ -434,7 +445,7 @@ public class OrderControllerTest {
         verify(mockCustomerService, times(1)).getCustomer("invalid_auth");
         verify(mockOrderService, times(0)).getOrdersByCustomers(anyString());
     }
-*/
+
     // ------------------------------------------ GET /order/coupon/{coupon_name} ------------------------------------------
 
     //This test case passes when you are able to retrieve coupon details by coupon name.
@@ -547,7 +558,7 @@ public class OrderControllerTest {
         verify(mockCustomerService, times(1)).getCustomer("database_accesstoken2");
         verify(mockOrderService, times(1)).getCouponByCouponName("myCoupon");
     }
-/*
+
     // ------------------------------------------ POJO Builder ------------------------------------------
 
     private SaveOrderRequest getSaveOrderRequest() {
@@ -609,6 +620,5 @@ public class OrderControllerTest {
         return new OrderEntity(orderId, 200.50, couponEntity, 10.0,
                 orderDate, paymentEntity, customerEntity, addressEntity, restaurantEntity);
     }
-*/
 
 }

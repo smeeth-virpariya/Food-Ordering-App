@@ -22,7 +22,10 @@ import java.io.Serializable;
 @NamedQueries({
   @NamedQuery(
       name = "couponByName",
-      query = "select c from CouponEntity c where c.couponName=:couponName")
+      query = "select c from CouponEntity c where c.couponName=:couponName"),
+  @NamedQuery(
+      name = "couponByUUID",
+      query = "select c from CouponEntity c where c.uuid=:couponUUID")
 })
 public class CouponEntity implements Serializable {
 

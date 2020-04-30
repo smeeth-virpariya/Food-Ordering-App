@@ -144,6 +144,38 @@ public class AddressService {
     return stateDao.getStateByUUID(stateUuid);
   }
 
+/*  *//**
+   * This method fetches the address from Database based on address UUID.
+   * @param addressUUID UUID of the address to be fetched.
+   * @param customer Customer entity to check if address belongs to the customer.
+   * @return
+   * @throws AddressNotFoundException if address with the given uuid doesn't exist in database
+   * @throws AuthorizationFailedException if the address doesn't belong to the customer.
+   *//*
+  public AddressEntity getAddressByUUID(final String addressUUID, CustomerEntity customer)
+      throws AddressNotFoundException, AuthorizationFailedException {
+    AddressEntity addressEntity = addressDao.getAddressByUUID(addressUUID);
+    if (addressEntity == null) {
+      throw new AddressNotFoundException("ANF-003", "No address by this id");
+    }
+
+    boolean addressBelongsToCustomer = false;
+
+    for (AddressEntity address : customer.getAddresses()) {
+      if (address.getUuid().equalsIgnoreCase(addressUUID)) {
+        addressBelongsToCustomer = true;
+        break;
+      }
+    }
+
+    if (!addressBelongsToCustomer) {
+      throw new AuthorizationFailedException(
+          "ATHR-004", "You are not authorized to view/update/delete any one else's address");
+    }
+
+    return addressEntity;
+  }*/
+
   // method checks provided pincode is in valid format or not
   private boolean isValidPinCode(final String pincode) {
     if (pincode.length() != 6) {

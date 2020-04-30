@@ -7,7 +7,17 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
@@ -17,7 +27,7 @@ import java.io.Serializable;
 @NamedQueries({
   @NamedQuery(
       name = "addressByUUID",
-      query = "select a from AddressEntity a where a.uuid=:addressId")
+      query = "select a from AddressEntity a where a.uuid=:addressUUID")
 })
 public class AddressEntity implements Serializable {
 
