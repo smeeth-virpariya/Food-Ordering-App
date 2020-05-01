@@ -40,9 +40,13 @@ public class AddressService {
       final AddressEntity addressEntity, final CustomerEntity customerEntity)
       throws SaveAddressException {
     if (addressEntity.getActive() != null
+        && addressEntity.getLocality() != null
         && !addressEntity.getLocality().isEmpty()
+        && addressEntity.getCity() != null
         && !addressEntity.getCity().isEmpty()
+        && addressEntity.getFlatBuilNo() != null
         && !addressEntity.getFlatBuilNo().isEmpty()
+        && addressEntity.getPincode() != null
         && !addressEntity.getPincode().isEmpty()
         && addressEntity.getState() != null) {
       if (!isValidPinCode(addressEntity.getPincode())) {
@@ -71,7 +75,7 @@ public class AddressService {
     List<AddressEntity> addressEntityList = new ArrayList<>();
     List<CustomerAddressEntity> customerAddressEntityList =
         addressDao.customerAddressByCustomer(customerEntity);
-    if (customerAddressEntityList != null) {
+    if (customerAddressEntityList != null || !customerAddressEntityList.isEmpty()) {
       customerAddressEntityList.forEach(
           customerAddressEntity -> addressEntityList.add(customerAddressEntity.getAddress()));
     }

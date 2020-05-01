@@ -16,6 +16,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,12 +50,14 @@ public class AddressController {
     CustomerEntity customerEntity = customerService.getCustomer(accessToken);
 
     final AddressEntity addressEntity = new AddressEntity();
-    addressEntity.setUuid(UUID.randomUUID().toString());
-    addressEntity.setCity(saveAddressRequest.getCity());
-    addressEntity.setLocality(saveAddressRequest.getLocality());
-    addressEntity.setPincode(saveAddressRequest.getPincode());
-    addressEntity.setFlatBuilNo(saveAddressRequest.getFlatBuildingName());
-    addressEntity.setActive(1);
+    if (saveAddressRequest != null) {
+      addressEntity.setUuid(UUID.randomUUID().toString());
+      addressEntity.setCity(saveAddressRequest.getCity());
+      addressEntity.setLocality(saveAddressRequest.getLocality());
+      addressEntity.setPincode(saveAddressRequest.getPincode());
+      addressEntity.setFlatBuilNo(saveAddressRequest.getFlatBuildingName());
+      addressEntity.setActive(1);
+    }
     addressEntity.setState(addressService.getStateByUUID(saveAddressRequest.getStateUuid()));
 
     final AddressEntity savedAddress = addressService.saveAddress(addressEntity, customerEntity);
@@ -86,20 +90,26 @@ public class AddressController {
 
     final AddressListResponse addressListResponse = new AddressListResponse();
 
-    for (AddressEntity addressEntity : addressEntityList) {
-      AddressList addressResponseList =
-          new AddressList()
-              .id(UUID.fromString(addressEntity.getUuid()))
-              .flatBuildingName(addressEntity.getFlatBuilNo())
-              .city(addressEntity.getCity())
-              .pincode(addressEntity.getPincode())
-              .locality(addressEntity.getLocality())
-              .state(
-                  new AddressListState()
-                      .id(UUID.fromString(addressEntity.getState().getUuid()))
-                      .stateName(addressEntity.getState().getStateName()));
-      addressListResponse.addAddressesItem(addressResponseList);
+    if (!addressEntityList.isEmpty()) {
+      for (AddressEntity addressEntity : addressEntityList) {
+        AddressList addressResponseList =
+            new AddressList()
+                .id(UUID.fromString(addressEntity.getUuid()))
+                .flatBuildingName(addressEntity.getFlatBuilNo())
+                .city(addressEntity.getCity())
+                .pincode(addressEntity.getPincode())
+                .locality(addressEntity.getLocality())
+                .state(
+                    new AddressListState()
+                        .id(UUID.fromString(addressEntity.getState().getUuid()))
+                        .stateName(addressEntity.getState().getStateName()));
+        addressListResponse.addAddressesItem(addressResponseList);
+      }
+    } else {
+      List<AddressList> addresses = Collections.emptyList();
+      addressListResponse.addresses(addresses);
     }
+
     return new ResponseEntity<AddressListResponse>(addressListResponse, HttpStatus.OK);
   }
 

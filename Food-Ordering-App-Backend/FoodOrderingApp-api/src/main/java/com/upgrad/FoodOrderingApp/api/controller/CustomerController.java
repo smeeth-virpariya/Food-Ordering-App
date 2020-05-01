@@ -41,7 +41,7 @@ public class CustomerController {
       produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
       consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public ResponseEntity<SignupCustomerResponse> signup(
-      @RequestBody(required = false) final SignupCustomerRequest signupCustomerRequest)
+      @RequestBody(required = true) final SignupCustomerRequest signupCustomerRequest)
       throws SignUpRestrictedException {
     CustomerEntity customerEntity = new CustomerEntity();
     customerEntity.setFirstName(signupCustomerRequest.getFirstName());
@@ -155,9 +155,10 @@ public class CustomerController {
       consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public ResponseEntity<UpdateCustomerResponse> update(
       @RequestHeader("authorization") final String authorization,
-      @RequestBody(required = false) final UpdateCustomerRequest updateCustomerRequest)
+      @RequestBody(required = true) final UpdateCustomerRequest updateCustomerRequest)
       throws UpdateCustomerException, AuthorizationFailedException {
-    if (updateCustomerRequest.getFirstName().isEmpty()) {
+    if (updateCustomerRequest.getFirstName() == null
+        || updateCustomerRequest.getFirstName().isEmpty()) {
       throw new UpdateCustomerException("UCR-002", "First name field should not be empty");
     }
 
@@ -193,14 +194,17 @@ public class CustomerController {
       produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
       consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
   public ResponseEntity<UpdatePasswordResponse> changePassword(
-      @RequestBody(required = false) final UpdatePasswordRequest updatePasswordRequest,
-      @RequestHeader("authorization") final String authorization)
+      @RequestHeader("authorization") final String authorization,
+      @RequestBody(required = true) final UpdatePasswordRequest updatePasswordRequest)
       throws UpdateCustomerException, AuthorizationFailedException {
 
     String oldPassword = updatePasswordRequest.getOldPassword();
     String newPassword = updatePasswordRequest.getNewPassword();
 
-    if (!oldPassword.isEmpty() && !newPassword.isEmpty()) {
+    if (oldPassword != null
+        && !oldPassword.isEmpty()
+        && newPassword != null
+        && !newPassword.isEmpty()) {
       String accessToken = Utility.getTokenFromAuthorization(authorization);
       CustomerEntity customerEntity = customerService.getCustomer(accessToken);
 
