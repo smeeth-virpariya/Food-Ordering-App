@@ -40,4 +40,20 @@ public class RestaurantService {
 
 
     }
+
+    /**
+     * Gets  restaurants in  DB based on search string.
+     *
+     * @return List of RestaurantEntity
+     */
+    public List<RestaurantEntity> getAllRestaurantsBySearchString(final String search) throws RestaurantNotFoundException {
+        if (search == null) {
+            throw new RestaurantNotFoundException("RNF-003", "Restaurant name field should not be empty");
+        }
+
+        List<RestaurantEntity> relevantRestaurantEntities = restaurantDao.getRestaurantsBySearchString(search);
+
+
+        return relevantRestaurantEntities;
+    }
 }

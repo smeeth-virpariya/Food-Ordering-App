@@ -17,11 +17,13 @@ import com.upgrad.FoodOrderingApp.service.businness.RestaurantService;
 import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CategoryEntity;
 import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
+import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,6 +53,31 @@ public class RestaurantController {
         RestaurantListResponse restaurantListResponse = new RestaurantListResponse().restaurants(allRestaurantsList);
 
         return new ResponseEntity<>(restaurantListResponse, HttpStatus.OK);
+    }
+
+    /**
+     * This API endpoint gets list of all restaurant found for given search string
+     *
+     * @return
+     */
+    @CrossOrigin
+    @RequestMapping(
+            method = RequestMethod.GET,
+            path = ("/restaurant/name/{restaurant_name}"),
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<RestaurantListResponse> getRestaurantsBySearchString
+    (@PathVariable("restaurant_name")final String restaurantName) throws RestaurantNotFoundException {
+
+        List<RestaurantEntity> allRestaurants = restaurantService.getAllRestaurantsBySearchString(restaurantName);
+        List<RestaurantList> allRestaurantsList = getRestaurantList(allRestaurants);
+        sortAlphabetically(allRestaurantsList);
+        RestaurantListResponse restaurantListResponse = new RestaurantListResponse().restaurants(allRestaurantsList);
+
+        if(allRestaurantsList.isEmpty()) {
+            return new ResponseEntity<>(restaurantListResponse, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(restaurantListResponse, HttpStatus.OK);
+
     }
 
     private List<RestaurantList> getRestaurantList(final List<RestaurantEntity> allRestaurants){
@@ -106,6 +133,16 @@ public class RestaurantController {
             @Override
             public int compare(RestaurantList r1, RestaurantList r2) {
                 return r2.getCustomerRating().compareTo(r1.getCustomerRating());
+            }
+
+        });
+    }
+
+    private void sortAlphabetically(List<RestaurantList> allRestaurantsList){
+        Collections.sort(allRestaurantsList, new Comparator<RestaurantList>() {
+            @Override
+            public int compare(RestaurantList r1, RestaurantList r2) {
+                return r1.getRestaurantName().compareTo(r2.getRestaurantName());
             }
 
         });

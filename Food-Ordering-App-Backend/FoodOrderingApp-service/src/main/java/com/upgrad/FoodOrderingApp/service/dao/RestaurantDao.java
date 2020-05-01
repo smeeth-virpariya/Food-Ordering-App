@@ -31,4 +31,17 @@ public class RestaurantDao {
   public List<RestaurantEntity> getRestaurants() {
     return entityManager.createNamedQuery("getAllRestaurants", RestaurantEntity.class).getResultList();
   }
+
+
+  /**
+   * This method gets lists of all restaurants by Search string
+   *
+   * @param
+   * @return
+   */
+  public List<RestaurantEntity> getRestaurantsBySearchString(final String searchString) {
+    return entityManager.createNamedQuery("getRestaurantBySearchString", RestaurantEntity.class)
+            .setParameter("searchString" ,"%"+searchString+"%")
+            .getResultList();
+  }
 }
