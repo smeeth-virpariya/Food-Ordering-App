@@ -17,6 +17,7 @@ import com.upgrad.FoodOrderingApp.service.businness.RestaurantService;
 import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CategoryEntity;
 import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
+import com.upgrad.FoodOrderingApp.service.exception.CategoryNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -69,6 +70,31 @@ public class RestaurantController {
     (@PathVariable("restaurant_name")final String restaurantName) throws RestaurantNotFoundException {
 
         List<RestaurantEntity> allRestaurants = restaurantService.getAllRestaurantsBySearchString(restaurantName);
+        List<RestaurantList> allRestaurantsList = getRestaurantList(allRestaurants);
+        sortAlphabetically(allRestaurantsList);
+        RestaurantListResponse restaurantListResponse = new RestaurantListResponse().restaurants(allRestaurantsList);
+
+        if(allRestaurantsList.isEmpty()) {
+            return new ResponseEntity<>(restaurantListResponse, HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(restaurantListResponse, HttpStatus.OK);
+
+    }
+
+    /**
+     * This API endpoint gets list of all restaurant found for given category UUID
+     *
+     * @return
+     */
+    @CrossOrigin
+    @RequestMapping(
+            method = RequestMethod.GET,
+            path = ("/restaurant/category/{category_id}"),
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<RestaurantListResponse> getRestaurantByCategory
+    (@PathVariable("category_id")final String categoryUuid) throws CategoryNotFoundException {
+
+        List<RestaurantEntity> allRestaurants = restaurantService.getAllRestaurantsByCategory(categoryUuid);
         List<RestaurantList> allRestaurantsList = getRestaurantList(allRestaurants);
         sortAlphabetically(allRestaurantsList);
         RestaurantListResponse restaurantListResponse = new RestaurantListResponse().restaurants(allRestaurantsList);

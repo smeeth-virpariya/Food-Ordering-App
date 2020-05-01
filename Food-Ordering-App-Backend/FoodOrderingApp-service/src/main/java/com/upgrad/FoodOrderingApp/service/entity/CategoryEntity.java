@@ -10,6 +10,8 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -22,6 +24,11 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 @Entity
 @Table(name = "category")
+@NamedQueries({
+        @NamedQuery(
+                name = "categoryByUuid",
+                query = "select c from CategoryEntity c where c.uuid=:uuid")
+})
 public class CategoryEntity  implements Serializable {
     @Id
     @Column(name = "id")
@@ -45,6 +52,9 @@ public class CategoryEntity  implements Serializable {
                     CascadeType.PERSIST,
                     CascadeType.MERGE
             })
+    @JoinTable(name = "restaurant_category",
+            joinColumns =  @JoinColumn(name = "category_id") ,
+            inverseJoinColumns = @JoinColumn(name = "restaurant_id"))
     private List<RestaurantEntity> restaurants;
 
     @ManyToMany(fetch = FetchType.LAZY,
