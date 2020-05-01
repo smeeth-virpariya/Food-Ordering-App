@@ -1,21 +1,20 @@
-package com.upgrad.FoodOrderingApp.service.businness;
 
-import com.upgrad.FoodOrderingApp.service.dao.CustomerAuthDao;
-import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
-import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
-import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
-import com.upgrad.FoodOrderingApp.service.exception.UpdateCustomerException;
-import org.apache.commons.validator.routines.EmailValidator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import com.upgrad.FoodOrderingApp.service.dao.CustomerDao;
-import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
-import com.upgrad.FoodOrderingApp.service.exception.SignUpRestrictedException;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
+package com.upgrad.FoodOrderingApp.service.businness;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
+import com.upgrad.FoodOrderingApp.service.dao.CustomerAuthDao;
+import com.upgrad.FoodOrderingApp.service.dao.CustomerDao;
+import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthEntity;
+import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
+import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
+import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
+import com.upgrad.FoodOrderingApp.service.exception.SignUpRestrictedException;
+import org.apache.commons.validator.routines.EmailValidator;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CustomerService {
@@ -35,17 +34,17 @@ public class CustomerService {
    */
   @Transactional(propagation = Propagation.REQUIRED)
   public CustomerEntity saveCustomer(CustomerEntity customerEntity)
-      throws SignUpRestrictedException {
+          throws SignUpRestrictedException {
     // Validation for required fields if any field other than lastname is empty then it throws
     // SignUpRestrictedException exception
     if (!customerEntity.getFirstName().isEmpty()
-        && !customerEntity.getEmailAddress().isEmpty()
-        && !customerEntity.getContactNumber().isEmpty()
-        && !customerEntity.getPassword().isEmpty()) {
+            && !customerEntity.getEmailAddress().isEmpty()
+            && !customerEntity.getContactNumber().isEmpty()
+            && !customerEntity.getPassword().isEmpty()) {
       // if contactNumber is already registered throws exception with code SGR-001
       if (isContactNumberInUse(customerEntity.getContactNumber())) {
         throw new SignUpRestrictedException(
-            "SGR-001", "This contact number is already registered! Try other contact number.");
+                "SGR-001", "This contact number is already registered! Try other contact number.");
       }
       // checks the email entered by user is valid or not
       if (!isValidEmail(customerEntity.getEmailAddress())) {
@@ -67,7 +66,7 @@ public class CustomerService {
       return customerDao.saveCustomer(customerEntity);
     } else {
       throw new SignUpRestrictedException(
-          "SGR-005", "Except last name all fields should be filled");
+              "SGR-005", "Except last name all fields should be filled");
     }
   }
 
@@ -81,17 +80,17 @@ public class CustomerService {
    */
   @Transactional(propagation = Propagation.REQUIRED)
   public CustomerAuthEntity authenticate(String username, String password)
-      throws AuthenticationFailedException {
+          throws AuthenticationFailedException {
     // fetch the customer details from database using contactNumber(username)
     CustomerEntity customerEntity = customerDao.getCustomerByContactNumber(username);
     // if there is no customer registered with given contactNumber then it throw
     // AuthenticationFailedException with code "ATH-001
     if (customerEntity == null) {
       throw new AuthenticationFailedException(
-          "ATH-001", "This contact number has not been registered!");
+              "ATH-001", "This contact number has not been registered!");
     }
     final String encryptedPassword =
-        PasswordCryptographyProvider.encrypt(password, customerEntity.getSalt());
+            PasswordCryptographyProvider.encrypt(password, customerEntity.getSalt());
     // if the encrypted password doesn't match with the fetched customer password throws
     // AuthenticationFailedException with code "ATH--002
     if (!encryptedPassword.equals(customerEntity.getPassword())) {
@@ -152,12 +151,12 @@ public class CustomerService {
 
       if (customerAuthEntity.getLogoutAt() != null) {
         throw new AuthorizationFailedException(
-            "ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
+                "ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
       }
 
       if (ZonedDateTime.now().isAfter(customerAuthEntity.getExpiresAt())) {
         throw new AuthorizationFailedException(
-            "ATHR-003", "Your session is expired. Log in again to access this endpoint.");
+                "ATHR-003", "Your session is expired. Log in again to access this endpoint.");
       }
       return customerAuthEntity.getCustomer();
     } else {
@@ -169,7 +168,7 @@ public class CustomerService {
   private boolean isContactNumberInUse(final String contactNumber) {
     return customerDao.getCustomerByContactNumber(contactNumber) != null;
   }
-  
+
   // method checks for format of the email is correct or not using EmailValidator
   private boolean isValidEmail(final String emailAddress) {
     EmailValidator validator = EmailValidator.getInstance();

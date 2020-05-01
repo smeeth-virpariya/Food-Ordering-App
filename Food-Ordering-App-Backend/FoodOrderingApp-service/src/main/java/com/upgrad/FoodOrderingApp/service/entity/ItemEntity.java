@@ -1,22 +1,26 @@
 package com.upgrad.FoodOrderingApp.service.entity;
 
-import com.upgrad.FoodOrderingApp.service.common.ItemType;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedNativeQueries;
 import javax.persistence.NamedNativeQuery;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import com.upgrad.FoodOrderingApp.service.common.ItemType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Table(name = "item")
@@ -31,8 +35,18 @@ import java.io.Serializable;
               + "group by order_item.item_id "
               + "order by (count(order_item.order_id)) "
               + "desc LIMIT 5)",
-      resultClass = ItemEntity.class)
+      resultClass = ItemEntity.class),
+  @NamedNativeQuery(
+                name = "getAllItemsInCategoryInRestaurant",
+                query = "select * from item where id in (select item_id " +
+                        "from restaurant_item " +
+                        "inner join restaurant_category on restaurant_item.restaurant_id=restaurant_category.restaurant_id " +
+                        "where restaurant_item.restaurant_id = ? and restaurant_category.category_id = ?)",
+          resultClass = ItemEntity.class),
 })
+
+
+
 public class ItemEntity implements Serializable {
   @Id
   @Column(name = "id")
@@ -57,6 +71,22 @@ public class ItemEntity implements Serializable {
   @Size(max = 10)
   @Column(name = "type")
   private String type;
+
+  @ManyToOne
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinTable(
+          name = "restaurant_item",
+          joinColumns = @JoinColumn(name = "item_id"),
+          inverseJoinColumns = @JoinColumn(name = "restaurant_id"))
+  private RestaurantEntity restaurantEntity;
+
+  @ManyToOne
+  @OnDelete(action = OnDeleteAction.CASCADE)
+  @JoinTable(
+          name = "category_item",
+          joinColumns = @JoinColumn(name = "item_id"),
+          inverseJoinColumns = @JoinColumn(name = "category_id"))
+  private CategoryEntity categoryEntity;
 
   public ItemEntity() {}
 
@@ -109,6 +139,26 @@ public class ItemEntity implements Serializable {
 
   public void setType(ItemType type) {
     this.type = type.toString();
+  }
+
+  public void setType(String type) {
+    this.type = type;
+  }
+
+  public RestaurantEntity getRestaurantEntity() {
+    return restaurantEntity;
+  }
+
+  public void setRestaurantEntity(RestaurantEntity restaurantEntity) {
+    this.restaurantEntity = restaurantEntity;
+  }
+
+  public CategoryEntity getCategoryEntity() {
+    return categoryEntity;
+  }
+
+  public void setCategoryEntity(CategoryEntity categoryEntity) {
+    this.categoryEntity = categoryEntity;
   }
 
   @Override

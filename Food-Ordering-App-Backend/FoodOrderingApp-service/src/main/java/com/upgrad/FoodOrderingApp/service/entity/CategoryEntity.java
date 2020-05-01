@@ -7,8 +7,12 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -22,7 +26,12 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 @Entity
 @Table(name = "category")
 @NamedQueries({
-
+        @NamedQuery(
+                name = "categoryByUuid",
+                query = "select c from CategoryEntity c where c.uuid=:uuid"),
+        @NamedQuery(
+                name = "allCategories",
+                query = "select c from CategoryEntity c")
 })
 public class CategoryEntity  implements Serializable {
     @Id
@@ -48,6 +57,12 @@ public class CategoryEntity  implements Serializable {
                     CascadeType.MERGE
             })
     private List<RestaurantEntity> restaurants;
+
+    @OneToMany
+    @JoinTable(name = "category_item",
+            joinColumns =  @JoinColumn(name = "category_id") ,
+            inverseJoinColumns = @JoinColumn(name = "item_id"))
+    private List<ItemEntity> items ;
 
     public Integer getId() {
         return id;
@@ -79,6 +94,14 @@ public class CategoryEntity  implements Serializable {
 
     public void setRestaurants(List<RestaurantEntity> restaurants) {
         this.restaurants = restaurants;
+    }
+
+    public List<ItemEntity> getItems() {
+        return items;
+    }
+
+    public void setItems(List<ItemEntity> items) {
+        this.items = items;
     }
 
     @Override

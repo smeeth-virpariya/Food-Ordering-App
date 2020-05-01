@@ -13,6 +13,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -84,6 +85,12 @@ public class RestaurantEntity implements Serializable {
           inverseJoinColumns = { @JoinColumn(name = "category_id") })
   private List<CategoryEntity> categories = new ArrayList<>();
 
+  @OneToMany
+  @JoinTable(name = "restaurant_item",
+          joinColumns =  @JoinColumn(name = "restaurant_id") ,
+          inverseJoinColumns = @JoinColumn(name = "item_id"))
+  private List<ItemEntity> items;
+
   public Integer getId() {
     return id;
   }
@@ -154,6 +161,14 @@ public class RestaurantEntity implements Serializable {
 
   public void setCategories(List<CategoryEntity> categories) {
     this.categories = categories;
+  }
+
+  public List<ItemEntity> getItems() {
+    return items;
+  }
+
+  public void setItems(List<ItemEntity> items) {
+    this.items = items;
   }
 
   @Override

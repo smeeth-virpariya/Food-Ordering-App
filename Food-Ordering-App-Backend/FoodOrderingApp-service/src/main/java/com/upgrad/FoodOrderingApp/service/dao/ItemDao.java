@@ -1,13 +1,12 @@
 package com.upgrad.FoodOrderingApp.service.dao;
 
-import com.upgrad.FoodOrderingApp.service.entity.ItemEntity;
-import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
-import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.Collections;
 import java.util.List;
+import com.upgrad.FoodOrderingApp.service.entity.ItemEntity;
+import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class ItemDao {
@@ -31,4 +30,17 @@ public class ItemDao {
     }
     return Collections.emptyList();
   }
+
+    public List<ItemEntity> getAllItemsInCategoryInRestaurant(Integer restaurantId, Integer categoryId) {
+      List<ItemEntity> items =
+              entityManager
+                      .createNamedQuery("getAllItemsInCategoryInRestaurant", ItemEntity.class)
+                      .setParameter(0,restaurantId )
+                      .setParameter(1,categoryId)
+                      .getResultList();
+      if (items != null) {
+        return items;
+      }
+      return Collections.emptyList();
+    }
 }
