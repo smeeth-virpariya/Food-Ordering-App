@@ -3,6 +3,7 @@ package com.upgrad.FoodOrderingApp.service.dao;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.util.List;
 import com.upgrad.FoodOrderingApp.service.entity.CategoryEntity;
 import org.springframework.stereotype.Repository;
 
@@ -24,6 +25,23 @@ public class CategoryDao {
                     .createNamedQuery("categoryByUuid", CategoryEntity.class)
                     .setParameter("uuid", categoryUuid)
                     .getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
+    /**
+     * This method fetches all CategoryEntity from db
+     *
+     * @param
+     * @return List of categoryEntity
+     */
+
+    public List<CategoryEntity> getAllCategories() {
+        try {
+            return entityManager
+                    .createNamedQuery("allCategories", CategoryEntity.class)
+                    .getResultList();
         } catch (NoResultException nre) {
             return null;
         }
