@@ -26,7 +26,7 @@ public class RestaurantDao {
    * This method gets lists of all restaurants
    *
    * @param
-   * @return
+   * @return List of RestaurantEntity
    */
   public List<RestaurantEntity> getRestaurants() {
     return entityManager.createNamedQuery("getAllRestaurants", RestaurantEntity.class).getResultList();
@@ -36,12 +36,23 @@ public class RestaurantDao {
   /**
    * This method gets lists of all restaurants by Search string
    *
-   * @param
-   * @return
+   * @param searchString
+   * @return List of RestaurantEntity
    */
   public List<RestaurantEntity> getRestaurantsBySearchString(final String searchString) {
     return entityManager.createNamedQuery("getRestaurantBySearchString", RestaurantEntity.class)
             .setParameter("searchString" ,"%"+searchString+"%")
             .getResultList();
+  }
+
+  /**
+   * This method updates the rating for a restaurant
+   *
+   * @param restaurantEntity
+   * @return restaurantEntity
+   */
+
+  public RestaurantEntity updateRestaurantEntity(final RestaurantEntity restaurantEntity) {
+    return entityManager.merge(restaurantEntity);
   }
 }
