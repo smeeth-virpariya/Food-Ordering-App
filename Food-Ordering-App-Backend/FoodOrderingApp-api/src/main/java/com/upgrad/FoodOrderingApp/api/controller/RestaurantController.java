@@ -9,13 +9,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import com.upgrad.FoodOrderingApp.api.model.CategoryList;
+import com.upgrad.FoodOrderingApp.api.model.ItemList;
+import com.upgrad.FoodOrderingApp.api.model.RestaurantDetailsResponse;
 import com.upgrad.FoodOrderingApp.api.model.RestaurantDetailsResponseAddress;
 import com.upgrad.FoodOrderingApp.api.model.RestaurantDetailsResponseAddressState;
 import com.upgrad.FoodOrderingApp.api.model.RestaurantList;
 import com.upgrad.FoodOrderingApp.api.model.RestaurantListResponse;
+import com.upgrad.FoodOrderingApp.service.businness.ItemService;
 import com.upgrad.FoodOrderingApp.service.businness.RestaurantService;
 import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CategoryEntity;
+import com.upgrad.FoodOrderingApp.service.entity.ItemEntity;
 import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
 import com.upgrad.FoodOrderingApp.service.exception.CategoryNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
@@ -36,6 +41,9 @@ public class RestaurantController {
 
     @Autowired
     private RestaurantService restaurantService;
+
+    @Autowired
+    private ItemService itemService;
     /**
      * This API endpoint gets list of all restaurant in order of their ratings
      *
@@ -50,7 +58,7 @@ public class RestaurantController {
 
         List<RestaurantEntity> allRestaurants = restaurantService.getAllRestaurants();
         List<RestaurantList> allRestaurantsList = getRestaurantList(allRestaurants);
-        sortBasedOnRating(allRestaurantsList);
+
         RestaurantListResponse restaurantListResponse = new RestaurantListResponse().restaurants(allRestaurantsList);
 
         return new ResponseEntity<>(restaurantListResponse, HttpStatus.OK);
@@ -71,7 +79,6 @@ public class RestaurantController {
 
         List<RestaurantEntity> allRestaurants = restaurantService.getAllRestaurantsBySearchString(restaurantName);
         List<RestaurantList> allRestaurantsList = getRestaurantList(allRestaurants);
-        sortAlphabetically(allRestaurantsList);
         RestaurantListResponse restaurantListResponse = new RestaurantListResponse().restaurants(allRestaurantsList);
 
         if(allRestaurantsList.isEmpty()) {
@@ -103,6 +110,54 @@ public class RestaurantController {
             return new ResponseEntity<>(restaurantListResponse, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(restaurantListResponse, HttpStatus.OK);
+
+    }
+
+    /**
+     * This API endpoint gets  restaurant  for given restaurant UUID
+     *
+     * @return
+     */
+    @CrossOrigin
+    @RequestMapping(
+            method = RequestMethod.GET,
+            path = ("/restaurant/{restaurant_id}"),
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<RestaurantDetailsResponse> getRestaurantById
+    (@PathVariable("restaurant_id")final String restaurantUuid) throws RestaurantNotFoundException {
+
+        RestaurantEntity restaurantEntity = restaurantService.restaurantByUUID(restaurantUuid);
+        List<CategoryList> categories = getAllCategoryItemsInRestaurant(restaurantEntity);
+
+        RestaurantDetailsResponse restaurantDetailsResponse = new RestaurantDetailsResponse();
+
+        restaurantDetailsResponse.setId(UUID.fromString(restaurantEntity.getUuid()));
+
+        RestaurantDetailsResponseAddress restaurantDetailsResponseAddress = new
+                RestaurantDetailsResponseAddress();
+        RestaurantDetailsResponseAddressState restaurantDetailsResponseAddressState = new
+                RestaurantDetailsResponseAddressState();
+        AddressEntity addressEntity = restaurantEntity.getAddress();
+        restaurantDetailsResponseAddress.setId(UUID.fromString(addressEntity.getUuid()));
+        restaurantDetailsResponseAddress.setFlatBuildingName(addressEntity.getFlatBuilNo());
+        restaurantDetailsResponseAddress.setCity(addressEntity.getCity());
+        restaurantDetailsResponseAddress.setLocality(addressEntity.getLocality());
+        restaurantDetailsResponseAddress.setPincode(addressEntity.getPincode());
+
+        restaurantDetailsResponseAddressState.setId(UUID.fromString(addressEntity.getState().getUuid()));
+        restaurantDetailsResponseAddressState.setStateName(addressEntity.getState().getStateName());
+        restaurantDetailsResponseAddress.setState(restaurantDetailsResponseAddressState);
+        restaurantDetailsResponse.setAddress(restaurantDetailsResponseAddress);
+
+        restaurantDetailsResponse.setAveragePrice(restaurantEntity.getAvgPrice());
+        restaurantDetailsResponse.setCustomerRating(BigDecimal.valueOf(restaurantEntity.getCustomerRating()));
+        restaurantDetailsResponse.setNumberCustomersRated(restaurantEntity.getNumberCustomersRated());
+        restaurantDetailsResponse.setPhotoURL(restaurantEntity.getPhotoUrl());
+        restaurantDetailsResponse.setRestaurantName(restaurantEntity.getRestaurantName());
+        restaurantDetailsResponse.setCategories(categories);
+
+
+        return new ResponseEntity<>(restaurantDetailsResponse, HttpStatus.OK);
 
     }
 
@@ -154,15 +209,6 @@ public class RestaurantController {
 
     }
 
-    private void sortBasedOnRating(List<RestaurantList> allRestaurantsList){
-        Collections.sort(allRestaurantsList, new Comparator<RestaurantList>() {
-            @Override
-            public int compare(RestaurantList r1, RestaurantList r2) {
-                return r2.getCustomerRating().compareTo(r1.getCustomerRating());
-            }
-
-        });
-    }
 
     private void sortAlphabetically(List<RestaurantList> allRestaurantsList){
         Collections.sort(allRestaurantsList, new Comparator<RestaurantList>() {
@@ -172,6 +218,54 @@ public class RestaurantController {
             }
 
         });
+    }
+
+
+    private List<CategoryList> getAllCategoryItemsInRestaurant(final RestaurantEntity restaurantEntity){
+        List<CategoryList> allCategoryItems = new ArrayList<>();
+        List<CategoryEntity> categories = restaurantEntity.getCategories();
+        sortCategoriesAlphabetically(categories);
+        for (CategoryEntity c: categories){
+            CategoryList categoryList = new CategoryList();
+            categoryList.setId(UUID.fromString(c.getUuid()));
+            categoryList.setCategoryName(c.getCategoryName());
+            List<ItemList> allItemsInCategory =
+                    getAllItemsInCategoryInRestaurant(restaurantEntity.getId(),c.getId());
+            categoryList.setItemList(allItemsInCategory);
+            allCategoryItems.add(categoryList);
+        }
+
+        return  allCategoryItems;
+    }
+
+    private void sortCategoriesAlphabetically(List<CategoryEntity> categoryEntities){
+        Collections.sort(categoryEntities, new Comparator<CategoryEntity>() {
+            @Override
+            public int compare(CategoryEntity c1, CategoryEntity c2) {
+                return c1.getCategoryName().compareTo(c2.getCategoryName());
+            }
+
+        });
+    }
+
+    private List<ItemList> getAllItemsInCategoryInRestaurant(final Integer restaurantId, final Integer categoryId){
+        List<ItemList> itemsInCategoryInRestaurant = new ArrayList<>();
+        List<ItemEntity> items = itemService.getItemsInCategoryInRestaurant(restaurantId,categoryId);
+        for(ItemEntity i :items){
+            ItemList itemList = new ItemList();
+            itemList.setId(UUID.fromString(i.getUuid()));
+            itemList.setItemName(i.getItemName());
+            itemList.setPrice(i.getPrice());
+            if (i.getType().equals("0")) {
+                itemList.setItemType(ItemList.ItemTypeEnum.valueOf("VEG"));
+            } else {
+                itemList.setItemType(ItemList.ItemTypeEnum.valueOf("NON_VEG"));
+            }
+
+            itemsInCategoryInRestaurant.add(itemList);
+        }
+
+        return itemsInCategoryInRestaurant;
     }
 
 

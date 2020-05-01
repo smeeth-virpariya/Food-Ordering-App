@@ -27,7 +27,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 @NamedQueries({
         @NamedQuery(
                 name = "categoryByUuid",
-                query = "select c from CategoryEntity c where c.uuid=:uuid")
+                query = "select c from CategoryEntity c where c.uuid=:uuid order by categoryName")
 })
 public class CategoryEntity  implements Serializable {
     @Id
