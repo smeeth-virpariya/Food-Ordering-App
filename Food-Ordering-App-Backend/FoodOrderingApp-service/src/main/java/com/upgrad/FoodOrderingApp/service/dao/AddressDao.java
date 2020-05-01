@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -30,20 +31,21 @@ public class AddressDao {
   }
 
   /**
-   * <<<<<<< HEAD fetches all the addresses of a given customer.
+   * This method fetches all the addresses of a given customer.
    *
    * @param customer whose detals to be fetched.
    * @return List of CustomerAddressEntity type object.
    */
   public List<CustomerAddressEntity> customerAddressByCustomer(CustomerEntity customer) {
-    try {
-      return entityManager
-          .createNamedQuery("customerAddressByCustomer", CustomerAddressEntity.class)
-          .setParameter("customer", customer)
-          .getResultList();
-    } catch (NoResultException nre) {
-      return null;
+    List<CustomerAddressEntity> addresses =
+        entityManager
+            .createNamedQuery("customerAddressByCustomer", CustomerAddressEntity.class)
+            .setParameter("customer", customer)
+            .getResultList();
+    if (addresses == null) {
+      return Collections.emptyList();
     }
+    return addresses;
   }
   /*
    * This method fetches the address from Database based on address UUID.
