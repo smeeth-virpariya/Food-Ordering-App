@@ -31,7 +31,10 @@ import org.apache.commons.lang3.builder.ToStringStyle;
                 query = "select r from RestaurantEntity r where r.uuid=:uuid"),
         @NamedQuery(
                 name = "getAllRestaurants",
-                query = "select r from RestaurantEntity r")
+                query = "select r from RestaurantEntity r"),
+        @NamedQuery(
+                name = "getRestaurantBySearchString",
+                query = "select r from RestaurantEntity r where lower(restaurantName) like lower(:searchString) ")
 })
 public class RestaurantEntity implements Serializable {
 
