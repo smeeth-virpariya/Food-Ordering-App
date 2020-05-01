@@ -27,6 +27,9 @@ public class RestaurantService {
      * @throws RestaurantNotFoundException if restaurant with UUID doesn't exist in the database.
      */
     public RestaurantEntity restaurantByUUID(String uuid) throws RestaurantNotFoundException {
+        if(uuid == null){
+            throw new RestaurantNotFoundException("RNF-002", "Restaurant id field should not be empty");
+        }
         RestaurantEntity restaurant = restaurantDao.restaurantByUUID(uuid);
         if (restaurant == null) {
             throw new RestaurantNotFoundException("RNF-001", "No restaurant by this id");
