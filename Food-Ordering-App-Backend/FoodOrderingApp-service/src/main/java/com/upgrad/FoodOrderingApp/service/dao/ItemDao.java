@@ -1,15 +1,13 @@
 package com.upgrad.FoodOrderingApp.service.dao;
 
-import com.upgrad.FoodOrderingApp.service.entity.ItemEntity;
-import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
-import org.springframework.stereotype.Repository;
-
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
+import com.upgrad.FoodOrderingApp.service.entity.ItemEntity;
+import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
+import org.springframework.stereotype.Repository;
 
 @Repository
 public class ItemDao {
@@ -45,5 +43,21 @@ public class ItemDao {
     } catch (NoResultException nre) {
       return null;
     }
+  }
+
+  /**
+   * This method gets Items for a given category in a restaurant
+   *
+   * @param restaurantId Restaurant whose items are to be queried, categoryId Category to be queried.
+   *    * @return List of ItemEntity
+   */
+  public List<ItemEntity> getAllItemsInCategoryInRestaurant(Integer restaurantId, Integer categoryId) {
+    List<ItemEntity> items =
+            entityManager
+                    .createNamedQuery("getAllItemsInCategoryInRestaurant", ItemEntity.class)
+                    .setParameter("restaurantId",restaurantId )
+                    .setParameter("categoryId",categoryId)
+                    .getResultList();
+      return items;
   }
 }
