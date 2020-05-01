@@ -6,9 +6,12 @@ import com.upgrad.FoodOrderingApp.service.dao.RestaurantDao;
 import com.upgrad.FoodOrderingApp.service.entity.CategoryEntity;
 import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
 import com.upgrad.FoodOrderingApp.service.exception.CategoryNotFoundException;
+import com.upgrad.FoodOrderingApp.service.exception.InvalidRatingException;
 import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class RestaurantService {
@@ -84,6 +87,33 @@ public class RestaurantService {
 
         return restaurantEntities;
 
+
+    }
+
+
+    /**
+     * Updates the customer rating for a restaurant
+     *
+     *
+     * @param restaurantEntity Restaurant whose rating is to be done, customerRating as provided by customer
+     * @return RestaurantEntity
+     */
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public RestaurantEntity updateRestaurantRating(final RestaurantEntity restaurantEntity,final Double customerRating) throws InvalidRatingException {
+        if(Double.valueOf(customerRating) <1 || Double.valueOf(customerRating)>5){
+            throw new InvalidRatingException("IRE-001","Restaurant should be in the range of 1 to 5");
+        }
+
+        Double currentRating = restaurantEntity.getCustomerRating();
+        Integer numberCustomersRated = restaurantEntity.getNumberCustomersRated();
+
+        Double newRating = ((currentRating*numberCustomersRated)+currentRating)/(numberCustomersRated+1);
+
+        restaurantEntity.setCustomerRating(newRating);
+        restaurantEntity.setNumberCustomersRated(numberCustomersRated+1);
+
+        return  restaurantDao.updateRestaurantEntity(restaurantEntity);
 
     }
 }
