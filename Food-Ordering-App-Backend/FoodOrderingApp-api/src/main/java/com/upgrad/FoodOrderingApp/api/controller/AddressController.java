@@ -50,12 +50,14 @@ public class AddressController {
     CustomerEntity customerEntity = customerService.getCustomer(accessToken);
 
     final AddressEntity addressEntity = new AddressEntity();
-    addressEntity.setUuid(UUID.randomUUID().toString());
-    addressEntity.setCity(saveAddressRequest.getCity());
-    addressEntity.setLocality(saveAddressRequest.getLocality());
-    addressEntity.setPincode(saveAddressRequest.getPincode());
-    addressEntity.setFlatBuilNo(saveAddressRequest.getFlatBuildingName());
-    addressEntity.setActive(1);
+    if (saveAddressRequest != null) {
+      addressEntity.setUuid(UUID.randomUUID().toString());
+      addressEntity.setCity(saveAddressRequest.getCity());
+      addressEntity.setLocality(saveAddressRequest.getLocality());
+      addressEntity.setPincode(saveAddressRequest.getPincode());
+      addressEntity.setFlatBuilNo(saveAddressRequest.getFlatBuildingName());
+      addressEntity.setActive(1);
+    }
     addressEntity.setState(addressService.getStateByUUID(saveAddressRequest.getStateUuid()));
 
     final AddressEntity savedAddress = addressService.saveAddress(addressEntity, customerEntity);
