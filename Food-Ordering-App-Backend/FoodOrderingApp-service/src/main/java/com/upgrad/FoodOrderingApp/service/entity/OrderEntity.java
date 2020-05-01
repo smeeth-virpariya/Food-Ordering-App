@@ -37,7 +37,7 @@ import java.util.List;
       query = "select o from OrderEntity o where o.address=:address"),
   @NamedQuery(
       name = "getOrdersByCustomer",
-      query = "select o from OrderEntity o where o.customer.uuid=:customerUUID")
+      query = "select o from OrderEntity o where o.customer.uuid=:customerUUID order by o.date desc")
 })
 public class OrderEntity implements Serializable {
 
