@@ -80,14 +80,6 @@ public class ItemEntity implements Serializable {
           inverseJoinColumns = @JoinColumn(name = "restaurant_id"))
   private RestaurantEntity restaurantEntity;
 
-  @ManyToOne
-  @OnDelete(action = OnDeleteAction.CASCADE)
-  @JoinTable(
-          name = "category_item",
-          joinColumns = @JoinColumn(name = "item_id"),
-          inverseJoinColumns = @JoinColumn(name = "category_id"))
-  private CategoryEntity categoryEntity;
-
   public ItemEntity() {}
 
   public ItemEntity(
@@ -153,13 +145,6 @@ public class ItemEntity implements Serializable {
     this.restaurantEntity = restaurantEntity;
   }
 
-  public CategoryEntity getCategoryEntity() {
-    return categoryEntity;
-  }
-
-  public void setCategoryEntity(CategoryEntity categoryEntity) {
-    this.categoryEntity = categoryEntity;
-  }
 
   @Override
   public boolean equals(Object obj) {

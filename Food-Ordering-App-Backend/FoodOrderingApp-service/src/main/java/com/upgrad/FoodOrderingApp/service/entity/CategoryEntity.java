@@ -12,7 +12,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -58,7 +57,11 @@ public class CategoryEntity  implements Serializable {
             })
     private List<RestaurantEntity> restaurants;
 
-    @OneToMany
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.PERSIST,
+                    CascadeType.MERGE
+            })
     @JoinTable(name = "category_item",
             joinColumns =  @JoinColumn(name = "category_id") ,
             inverseJoinColumns = @JoinColumn(name = "item_id"))
