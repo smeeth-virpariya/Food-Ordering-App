@@ -42,7 +42,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
       query =
           "Select r from RestaurantEntity r where id in (select rc.restaurantId from RestaurantCategoryEntity rc where rc.categoryId = "
               + "(select c.id from CategoryEntity c where "
-              + "c.uuid=':categoryUuid') ) order by restaurant_name")
+              + "c.uuid=:categoryUuid) ) order by restaurant_name")
 })
 public class RestaurantEntity implements Serializable {
 
