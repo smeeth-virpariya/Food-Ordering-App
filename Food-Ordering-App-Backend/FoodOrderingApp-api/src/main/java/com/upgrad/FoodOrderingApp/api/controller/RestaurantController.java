@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -155,7 +156,7 @@ public class RestaurantController {
   public ResponseEntity<RestaurantUpdatedResponse> updateRestaurantRating(
       @RequestHeader("authorization") final String authorization,
       @PathVariable("restaurant_id") final String restaurantUuid,
-      final Double customerRating)
+      @RequestParam("customer_rating")final Double customerRating)
       throws AuthorizationFailedException, RestaurantNotFoundException, InvalidRatingException {
     String accessToken = Utility.getTokenFromAuthorization(authorization);
     CustomerEntity customerEntity = customerService.getCustomer(accessToken);
