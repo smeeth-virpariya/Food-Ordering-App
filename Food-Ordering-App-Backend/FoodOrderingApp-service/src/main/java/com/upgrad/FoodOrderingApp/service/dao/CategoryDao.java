@@ -27,7 +27,6 @@ public class CategoryDao {
     } catch (NoResultException nre) {
       return null;
     }
-
   }
 
   /**
