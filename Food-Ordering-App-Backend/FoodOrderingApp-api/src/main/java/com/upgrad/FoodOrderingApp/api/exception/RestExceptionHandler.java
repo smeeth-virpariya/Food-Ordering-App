@@ -1,10 +1,10 @@
 package com.upgrad.FoodOrderingApp.api.exception;
 
 import com.upgrad.FoodOrderingApp.api.model.ErrorResponse;
-
 import com.upgrad.FoodOrderingApp.service.exception.AddressNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
+import com.upgrad.FoodOrderingApp.service.exception.CategoryNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.CouponNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.ItemNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.PaymentMethodNotFoundException;
@@ -169,6 +169,20 @@ public class RestExceptionHandler {
   @ExceptionHandler(ItemNotFoundException.class)
   public ResponseEntity<ErrorResponse> itemNotFoundException(
       ItemNotFoundException exception, WebRequest request) {
+    return new ResponseEntity<ErrorResponse>(
+        new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()),
+        HttpStatus.NOT_FOUND);
+  }
+
+  /**
+   * Exception handler for CategoryNotFoundException
+   *
+   * @return ResponseEntity<ErrorResponse> type object displaying error code and error message along
+   *     * with HttpStatus as NOT_FOUND.
+   */
+  @ExceptionHandler(CategoryNotFoundException.class)
+  public ResponseEntity<ErrorResponse> categoryNotFoundException(
+      CategoryNotFoundException exception, WebRequest request) {
     return new ResponseEntity<ErrorResponse>(
         new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()),
         HttpStatus.NOT_FOUND);
