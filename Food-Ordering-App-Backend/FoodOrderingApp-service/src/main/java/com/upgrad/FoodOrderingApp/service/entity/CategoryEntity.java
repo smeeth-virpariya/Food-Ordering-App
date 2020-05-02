@@ -25,103 +25,99 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 @Entity
 @Table(name = "category")
 @NamedQueries({
-        @NamedQuery(
-                name = "categoryByUuid",
-                query = "select c from CategoryEntity c where c.uuid=:uuid order by categoryName"),
-        @NamedQuery(
-                name = "allCategories",
-                query = "select c from CategoryEntity c order by categoryName asc")
+  @NamedQuery(
+      name = "categoryByUuid",
+      query = "select c from CategoryEntity c where c.uuid=:uuid order by categoryName"),
+  @NamedQuery(
+      name = "getAllCategoriesOrderedByName",
+      query = "select c from CategoryEntity c order by categoryName asc")
 })
-public class CategoryEntity  implements Serializable {
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+public class CategoryEntity implements Serializable {
+  @Id
+  @Column(name = "id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
 
-    @Size(max = 200)
-    @NotNull
-    @Column(name = "uuid")
-    private String uuid;
+  @Size(max = 200)
+  @NotNull
+  @Column(name = "uuid")
+  private String uuid;
 
+  @Size(max = 255)
+  @NotNull
+  @Column(name = "category_name")
+  private String categoryName;
 
-    @Size(max = 255)
-    @NotNull
-    @Column(name = "category_name")
-    private String categoryName;
+  @ManyToMany(
+      fetch = FetchType.LAZY,
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @JoinTable(
+      name = "restaurant_category",
+      joinColumns = @JoinColumn(name = "category_id"),
+      inverseJoinColumns = @JoinColumn(name = "restaurant_id"))
+  private List<RestaurantEntity> restaurants;
 
+  @ManyToMany(
+      fetch = FetchType.LAZY,
+      cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+  @JoinTable(
+      name = "category_item",
+      joinColumns = @JoinColumn(name = "category_id"),
+      inverseJoinColumns = @JoinColumn(name = "item_id"))
+  private List<ItemEntity> items;
 
-    @ManyToMany(fetch = FetchType.LAZY,
-            cascade = {
-                    CascadeType.PERSIST,
-                    CascadeType.MERGE
-            })
-    @JoinTable(name = "restaurant_category",
-            joinColumns =  @JoinColumn(name = "category_id") ,
-            inverseJoinColumns = @JoinColumn(name = "restaurant_id"))
-    private List<RestaurantEntity> restaurants;
+  public Integer getId() {
+    return id;
+  }
 
-    @ManyToMany(fetch = FetchType.LAZY,
-            cascade = {
-                    CascadeType.PERSIST,
-                    CascadeType.MERGE
-            })
-    @JoinTable(name = "category_item",
-            joinColumns =  @JoinColumn(name = "category_id") ,
-            inverseJoinColumns = @JoinColumn(name = "item_id"))
-    private List<ItemEntity> items ;
+  public void setId(Integer id) {
+    this.id = id;
+  }
 
-    public Integer getId() {
-        return id;
-    }
+  public String getUuid() {
+    return uuid;
+  }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  }
 
-    public String getUuid() {
-        return uuid;
-    }
+  public String getCategoryName() {
+    return categoryName;
+  }
 
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
+  public void setCategoryName(String categoryName) {
+    this.categoryName = categoryName;
+  }
 
-    public String getCategoryName() {
-        return categoryName;
-    }
+  public List<RestaurantEntity> getRestaurants() {
+    return restaurants;
+  }
 
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
+  public void setRestaurants(List<RestaurantEntity> restaurants) {
+    this.restaurants = restaurants;
+  }
 
-    public List<RestaurantEntity> getRestaurants() {
-        return restaurants;
-    }
+  public List<ItemEntity> getItems() {
+    return items;
+  }
 
-    public void setRestaurants(List<RestaurantEntity> restaurants) {
-        this.restaurants = restaurants;
-    }
+  public void setItems(List<ItemEntity> items) {
+    this.items = items;
+  }
 
-    public List<ItemEntity> getItems() {
-        return items;
-    }
+  @Override
+  public boolean equals(Object obj) {
+    return new EqualsBuilder().append(this, obj).isEquals();
+  }
 
-    public void setItems(List<ItemEntity> items) {
-        this.items = items;
-    }
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(this).hashCode();
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-        return new EqualsBuilder().append(this, obj).isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(this).hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
-    }
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+  }
 }

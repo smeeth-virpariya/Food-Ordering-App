@@ -1,6 +1,5 @@
 package com.upgrad.FoodOrderingApp.service.businness;
 
-
 import java.util.List;
 import com.upgrad.FoodOrderingApp.service.dao.CategoryDao;
 import com.upgrad.FoodOrderingApp.service.entity.CategoryEntity;
@@ -11,24 +10,31 @@ import org.springframework.stereotype.Service;
 @Service
 public class CategoryService {
 
+  @Autowired public CategoryDao categoryDao;
 
-    @Autowired
-    public CategoryDao categoryDao;
-
-
-    public CategoryEntity getCategoryEntity(final String uuid) throws CategoryNotFoundException {
-        if(uuid ==null){
-            throw new CategoryNotFoundException("CNF-001","Category id field should not be empty");
-        }
-        CategoryEntity categoryEntity = categoryDao.getCategoryByUuid(uuid);
-        if(categoryEntity == null){
-            throw new CategoryNotFoundException("CNF-002","No category by this id");
-        }
-        return categoryEntity;
+  /*Get category for given category uuid
+   *
+   * @param uuid of category
+   * @return CategoryEntity for given uuid
+   * */
+  public CategoryEntity getCategoryById(final String uuid) throws CategoryNotFoundException {
+    if (uuid == null) {
+      throw new CategoryNotFoundException("CNF-001", "Category id field should not be empty");
     }
-
-    public List<CategoryEntity> getAllCategories() {
-        List<CategoryEntity> categoryEntities = categoryDao.getAllCategories();
-        return categoryEntities;
+    CategoryEntity categoryEntity = categoryDao.getCategoryByUuid(uuid);
+    if (categoryEntity == null) {
+      throw new CategoryNotFoundException("CNF-002", "No category by this id");
     }
+    return categoryEntity;
+  }
+
+  /*Get all categories in db
+   *
+   *
+   * @return List of CategoryEntity
+   * */
+  public List<CategoryEntity> getAllCategoriesOrderedByName() {
+    List<CategoryEntity> categoryEntities = categoryDao.getAllCategoriesOrderedByName();
+    return categoryEntities;
+  }
 }

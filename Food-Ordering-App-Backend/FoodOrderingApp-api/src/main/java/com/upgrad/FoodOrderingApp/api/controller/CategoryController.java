@@ -3,6 +3,7 @@ package com.upgrad.FoodOrderingApp.api.controller;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import com.upgrad.FoodOrderingApp.api.model.CategoriesListResponse;
 import com.upgrad.FoodOrderingApp.api.model.CategoryDetailsResponse;
 import com.upgrad.FoodOrderingApp.api.model.CategoryListResponse;
 import com.upgrad.FoodOrderingApp.api.model.ItemList;
@@ -24,73 +25,76 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/")
 public class CategoryController {
 
-    @Autowired
-    private CategoryService categoryService;
+  @Autowired private CategoryService categoryService;
 
+  /**
+   * This API endpoint gets list of all categories
+   *
+   * @return
+   */
+  @CrossOrigin
+  @RequestMapping(
+      method = RequestMethod.GET,
+      path = "/category",
+      produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public ResponseEntity<CategoriesListResponse> getCategories() {
 
-    /**
-     * This API endpoint gets list of all categories
-     *
-     * @return
-     */
-    @CrossOrigin
-    @RequestMapping(
-            method = RequestMethod.GET,
-            path = "/category",
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<List<CategoryListResponse>> getCategories() {
+    List<CategoryEntity> allcategories = categoryService.getAllCategoriesOrderedByName();
+    List<CategoryListResponse> categoryListResponses = null;
+    if (allcategories.size() > 0) {
+      categoryListResponses = new ArrayList<>();
 
-        List<CategoryEntity> allcategories = categoryService.getAllCategories();
+      for (CategoryEntity categoryEntity : allcategories) {
+        CategoryListResponse categoryListResponse = new CategoryListResponse();
+        categoryListResponse.setId(UUID.fromString(categoryEntity.getUuid()));
+        categoryListResponse.setCategoryName(categoryEntity.getCategoryName());
+        categoryListResponses.add(categoryListResponse);
+      }
+    }
+    CategoriesListResponse categoriesListResponse = new CategoriesListResponse();
 
-        List<CategoryListResponse> categoryListResponses = new ArrayList<>();
+    categoriesListResponse.setCategories(categoryListResponses);
 
-        for(CategoryEntity c:allcategories){
-            CategoryListResponse categoryListResponse = new CategoryListResponse();
-            categoryListResponse.setCategoryName(c.getCategoryName());
-            categoryListResponse.setId(UUID.fromString(c.getUuid()));
-            categoryListResponses.add(categoryListResponse);
-        }
+    return new ResponseEntity<>(categoriesListResponse, HttpStatus.OK);
+  }
 
-        return new ResponseEntity<>(categoryListResponses, HttpStatus.OK);
+  /**
+   * This API endpoint gets CategoryDetail for given category UUID
+   *
+   * @return
+   */
+  @CrossOrigin
+  @RequestMapping(
+      method = RequestMethod.GET,
+      path = "/category/{category_id}",
+      produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public ResponseEntity<CategoryDetailsResponse> getCategoryDetail(
+      @PathVariable("category_id") final String categoryUuid) throws CategoryNotFoundException {
+
+    CategoryEntity categoryEntity = categoryService.getCategoryById(categoryUuid);
+
+    CategoryDetailsResponse categoryDetailsResponse = new CategoryDetailsResponse();
+    categoryDetailsResponse.setCategoryName(categoryEntity.getCategoryName());
+    categoryDetailsResponse.setId(UUID.fromString(categoryEntity.getUuid()));
+
+    List<ItemEntity> itemEntities = categoryEntity.getItems();
+    List<ItemList> itemLists = new ArrayList<>();
+
+    for (ItemEntity itemEntity : itemEntities) {
+      ItemList itemList = new ItemList();
+      itemList.setId(UUID.fromString(itemEntity.getUuid()));
+      itemList.setItemName(itemEntity.getItemName());
+      itemList.setPrice(itemEntity.getPrice());
+      if (itemEntity.getType().equals("0")) {
+        itemList.setItemType(ItemList.ItemTypeEnum.valueOf("VEG"));
+      } else {
+        itemList.setItemType(ItemList.ItemTypeEnum.valueOf("NON_VEG"));
+      }
+      itemLists.add(itemList);
     }
 
-    /**
-     * This API endpoint gets CategoryDetail for given category UUID
-     *
-     * @return
-     */
-    @CrossOrigin
-    @RequestMapping(
-            method = RequestMethod.GET,
-            path = "/category/{category_id}",
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<CategoryDetailsResponse> getCategoryDetail(@PathVariable("category_id")final String categoryUuid) throws CategoryNotFoundException {
+    categoryDetailsResponse.setItemList(itemLists);
 
-        CategoryEntity categoryEntity  = categoryService.getCategoryEntity(categoryUuid);
-
-        CategoryDetailsResponse categoryDetailsResponse = new CategoryDetailsResponse();
-        categoryDetailsResponse.setCategoryName(categoryEntity.getCategoryName());
-        categoryDetailsResponse.setId(UUID.fromString(categoryEntity.getUuid()));
-
-        List<ItemEntity> itemEntities = categoryEntity.getItems();
-        List<ItemList> itemLists = new ArrayList<>();
-
-        for(ItemEntity itemEntity : itemEntities){
-            ItemList itemList = new ItemList();
-            itemList.setId(UUID.fromString(itemEntity.getUuid()));
-            itemList.setItemName(itemEntity.getItemName());
-            itemList.setPrice(itemEntity.getPrice());
-            if (itemEntity.getType().equals("0")) {
-                itemList.setItemType(ItemList.ItemTypeEnum.valueOf("VEG"));
-            } else {
-                itemList.setItemType(ItemList.ItemTypeEnum.valueOf("NON_VEG"));
-            }
-            itemLists.add(itemList);
-        }
-
-        categoryDetailsResponse.setItemList(itemLists);
-
-        return new ResponseEntity<CategoryDetailsResponse>(categoryDetailsResponse, HttpStatus.OK);
-    }
-
+    return new ResponseEntity<CategoryDetailsResponse>(categoryDetailsResponse, HttpStatus.OK);
+  }
 }
