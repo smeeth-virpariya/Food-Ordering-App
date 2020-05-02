@@ -28,10 +28,11 @@ public class RestaurantDao {
    * @param
    * @return List of RestaurantEntity
    */
-  public List<RestaurantEntity> getRestaurants() {
-    return entityManager.createNamedQuery("getAllRestaurants", RestaurantEntity.class).getResultList();
+  public List<RestaurantEntity> restaurantsByRating() {
+    return entityManager
+        .createNamedQuery("restaurantsByRating", RestaurantEntity.class)
+        .getResultList();
   }
-
 
   /**
    * This method gets lists of all restaurants by Search string
@@ -39,10 +40,11 @@ public class RestaurantDao {
    * @param searchString
    * @return List of RestaurantEntity
    */
-  public List<RestaurantEntity> getRestaurantsBySearchString(final String searchString) {
-    return entityManager.createNamedQuery("getRestaurantBySearchString", RestaurantEntity.class)
-            .setParameter("searchString" ,"%"+searchString+"%")
-            .getResultList();
+  public List<RestaurantEntity> restaurantsByName(final String searchString) {
+    return entityManager
+        .createNamedQuery("getRestaurantByName", RestaurantEntity.class)
+        .setParameter("searchString", "%" + searchString + "%")
+        .getResultList();
   }
 
   /**
@@ -51,8 +53,22 @@ public class RestaurantDao {
    * @param restaurantEntity
    * @return restaurantEntity
    */
-
   public RestaurantEntity updateRestaurantEntity(final RestaurantEntity restaurantEntity) {
-    return entityManager.merge(restaurantEntity);
+    RestaurantEntity updatedRestaurantEntity = entityManager.merge(restaurantEntity);
+    return updatedRestaurantEntity;
+  }
+
+  /**
+   * This method gets restaurants by Category
+   *
+   * @param categoryUuid
+   * @return List of restaurantEntity
+   */
+  public List<RestaurantEntity> restaurantByCategory(final String categoryUuid) {
+
+    return entityManager
+        .createNamedQuery("restaurantByCategory", RestaurantEntity.class)
+        .setParameter("categoryUuid", categoryUuid)
+        .getResultList();
   }
 }
