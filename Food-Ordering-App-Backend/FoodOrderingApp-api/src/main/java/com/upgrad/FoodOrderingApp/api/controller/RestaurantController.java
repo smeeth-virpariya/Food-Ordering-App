@@ -1,13 +1,8 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.UUID;
 import com.upgrad.FoodOrderingApp.api.common.Utility;
 import com.upgrad.FoodOrderingApp.api.model.CategoryList;
@@ -18,6 +13,7 @@ import com.upgrad.FoodOrderingApp.api.model.RestaurantDetailsResponseAddressStat
 import com.upgrad.FoodOrderingApp.api.model.RestaurantList;
 import com.upgrad.FoodOrderingApp.api.model.RestaurantListResponse;
 import com.upgrad.FoodOrderingApp.api.model.RestaurantUpdatedResponse;
+import com.upgrad.FoodOrderingApp.service.businness.CategoryService;
 import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
 import com.upgrad.FoodOrderingApp.service.businness.ItemService;
 import com.upgrad.FoodOrderingApp.service.businness.RestaurantService;
@@ -45,263 +41,251 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/")
 public class RestaurantController {
 
+  @Autowired private RestaurantService restaurantService;
 
-    @Autowired
-    private RestaurantService restaurantService;
+  @Autowired private ItemService itemService;
 
-    @Autowired
-    private ItemService itemService;
+  @Autowired private CustomerService customerService;
 
-    @Autowired
-    private CustomerService customerService;
-    /**
-     * This API endpoint gets list of all restaurant in order of their ratings
-     *
-     * @return
-     */
-    @CrossOrigin
-    @RequestMapping(
-            method = RequestMethod.GET,
-            path = "/restaurant",
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<RestaurantListResponse> getRestaurants() {
+  @Autowired private CategoryService categoryService;
 
-        List<RestaurantEntity> allRestaurants = restaurantService.getAllRestaurants();
-        List<RestaurantList> allRestaurantsList = getRestaurantList(allRestaurants);
+  /**
+   * This API endpoint gets list of all restaurant in order of their ratings
+   *
+   * @return
+   */
+  @CrossOrigin
+  @RequestMapping(
+      method = RequestMethod.GET,
+      path = "/restaurant",
+      produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public ResponseEntity<RestaurantListResponse> getRestaurants() {
 
-        RestaurantListResponse restaurantListResponse = new RestaurantListResponse().restaurants(allRestaurantsList);
+    List<RestaurantEntity> allRestaurants = restaurantService.restaurantsByRating();
+    List<RestaurantList> allRestaurantsList = createListOfRestaurantList(allRestaurants);
 
-        return new ResponseEntity<>(restaurantListResponse, HttpStatus.OK);
+    RestaurantListResponse restaurantListResponse =
+        new RestaurantListResponse().restaurants(allRestaurantsList);
+
+    return new ResponseEntity<>(restaurantListResponse, HttpStatus.OK);
+  }
+
+  /**
+   * This API endpoint gets list of all restaurant found for given search string
+   *
+   * @return
+   */
+  @CrossOrigin
+  @RequestMapping(
+      method = RequestMethod.GET,
+      path = ("/restaurant/name/{restaurant_name}"),
+      produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public ResponseEntity<RestaurantListResponse> getRestaurantsBySearchString(
+      @PathVariable("restaurant_name") final String restaurantName)
+      throws RestaurantNotFoundException {
+
+    List<RestaurantEntity> allRestaurants = restaurantService.restaurantsByName(restaurantName);
+    List<RestaurantList> allRestaurantsList = createListOfRestaurantList(allRestaurants);
+    RestaurantListResponse restaurantListResponse =
+        new RestaurantListResponse().restaurants(allRestaurantsList);
+
+    if (allRestaurantsList.isEmpty()) {
+      return new ResponseEntity<>(restaurantListResponse, HttpStatus.NOT_FOUND);
+    }
+    return new ResponseEntity<>(restaurantListResponse, HttpStatus.OK);
+  }
+
+  /**
+   * This API endpoint gets list of all restaurant found for given category UUID
+   *
+   * @return
+   */
+  @CrossOrigin
+  @RequestMapping(
+      method = RequestMethod.GET,
+      path = ("/restaurant/category/{category_id}"),
+      produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public ResponseEntity<RestaurantListResponse> getRestaurantByCategory(
+      @PathVariable("category_id") final String categoryUuid) throws CategoryNotFoundException {
+
+    List<RestaurantEntity> allRestaurants = restaurantService.restaurantByCategory(categoryUuid);
+    List<RestaurantList> allRestaurantsList = createListOfRestaurantList(allRestaurants);
+    RestaurantListResponse restaurantListResponse =
+        new RestaurantListResponse().restaurants(allRestaurantsList);
+
+    if (allRestaurantsList.isEmpty()) {
+      return new ResponseEntity<>(restaurantListResponse, HttpStatus.NOT_FOUND);
+    }
+    return new ResponseEntity<>(restaurantListResponse, HttpStatus.OK);
+  }
+
+  /**
+   * This API endpoint gets restaurant for given restaurant UUID
+   *
+   * @return
+   */
+  @CrossOrigin
+  @RequestMapping(
+      method = RequestMethod.GET,
+      path = ("/restaurant/{restaurant_id}"),
+      produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public ResponseEntity<RestaurantDetailsResponse> getRestaurantById(
+      @PathVariable("restaurant_id") final String restaurantUuid)
+      throws RestaurantNotFoundException {
+
+    RestaurantEntity restaurantEntity = restaurantService.restaurantByUUID(restaurantUuid);
+    RestaurantDetailsResponse restaurantDetailsResponse =
+        createRestaurantDetailsResponse(restaurantEntity);
+    List<CategoryList> categories = getAllCategoryItemsInRestaurant(restaurantUuid);
+    restaurantDetailsResponse.setCategories(categories);
+    return new ResponseEntity<>(restaurantDetailsResponse, HttpStatus.OK);
+  }
+
+  /**
+   * This API endpoint updates the restaurant rating by customer
+   *
+   * @return
+   */
+  @CrossOrigin
+  @RequestMapping(
+      method = RequestMethod.PUT,
+      path = ("/restaurant/{restaurant_id}"),
+      produces = MediaType.APPLICATION_JSON_UTF8_VALUE,
+      consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
+  public ResponseEntity<RestaurantUpdatedResponse> updateRestaurantRating(
+      @RequestHeader("authorization") final String authorization,
+      @PathVariable("restaurant_id") final String restaurantUuid,
+      final Double customerRating)
+      throws AuthorizationFailedException, RestaurantNotFoundException, InvalidRatingException {
+    String accessToken = Utility.getTokenFromAuthorization(authorization);
+    CustomerEntity customerEntity = customerService.getCustomer(accessToken);
+    RestaurantEntity restaurantEntity = restaurantService.restaurantByUUID(restaurantUuid);
+    RestaurantEntity updatedRestaurantEntity =
+        restaurantService.updateRestaurantRating(restaurantEntity, customerRating);
+    RestaurantUpdatedResponse restaurantUpdatedResponse = new RestaurantUpdatedResponse();
+    restaurantUpdatedResponse.setId(UUID.fromString(updatedRestaurantEntity.getUuid()));
+    restaurantUpdatedResponse.setStatus("RESTAURANT RATING UPDATED SUCCESSFULLY");
+
+    return new ResponseEntity<RestaurantUpdatedResponse>(restaurantUpdatedResponse, HttpStatus.OK);
+  }
+
+  /* Creates a List of RestaurantList */
+
+  private List<RestaurantList> createListOfRestaurantList(
+      final List<RestaurantEntity> allRestaurants) {
+    List<RestaurantList> allRestaurantsList = new ArrayList<>();
+    for (RestaurantEntity restaurantEntity : allRestaurants) {
+      RestaurantList restaurantList = new RestaurantList();
+      restaurantList.setId(UUID.fromString(restaurantEntity.getUuid()));
+      RestaurantDetailsResponseAddress restaurantDetailsResponseAddress =
+          createRestaurantDetailsResponseAddress(restaurantEntity.getAddress());
+
+      restaurantList.setAddress(restaurantDetailsResponseAddress);
+      restaurantList.setAveragePrice(restaurantEntity.getAvgPrice());
+
+      List<CategoryEntity> categoryEntities =
+          categoryService.getCategoriesByRestaurant(restaurantEntity.getUuid());
+      StringBuilder categoriesString = new StringBuilder();
+      for (CategoryEntity category : categoryEntities) {
+        categoriesString.append(category.getCategoryName() + ", ");
+      }
+      restaurantList.setCategories(categoriesString.toString().replaceAll(", $", ""));
+
+      restaurantList.setCustomerRating(BigDecimal.valueOf(restaurantEntity.getCustomerRating()));
+      restaurantList.setNumberCustomersRated(restaurantEntity.getNumberCustomersRated());
+      restaurantList.setPhotoURL(restaurantEntity.getPhotoUrl());
+      restaurantList.setRestaurantName(restaurantEntity.getRestaurantName());
+      allRestaurantsList.add(restaurantList);
     }
 
-    /**
-     * This API endpoint gets list of all restaurant found for given search string
-     *
-     * @return
-     */
-    @CrossOrigin
-    @RequestMapping(
-            method = RequestMethod.GET,
-            path = ("/restaurant/name/{restaurant_name}"),
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<RestaurantListResponse> getRestaurantsBySearchString
-    (@PathVariable("restaurant_name")final String restaurantName) throws RestaurantNotFoundException {
+    return allRestaurantsList;
+  }
 
-        List<RestaurantEntity> allRestaurants = restaurantService.getAllRestaurantsBySearchString(restaurantName);
-        List<RestaurantList> allRestaurantsList = getRestaurantList(allRestaurants);
-        RestaurantListResponse restaurantListResponse = new RestaurantListResponse().restaurants(allRestaurantsList);
+  /* Creates RestaurantDetailsResponse */
 
-        if(allRestaurantsList.isEmpty()) {
-            return new ResponseEntity<>(restaurantListResponse, HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(restaurantListResponse, HttpStatus.OK);
+  private RestaurantDetailsResponse createRestaurantDetailsResponse(
+      RestaurantEntity restaurantEntity) {
 
+    RestaurantDetailsResponse restaurantDetailsResponse = new RestaurantDetailsResponse();
+
+    restaurantDetailsResponse.setId(UUID.fromString(restaurantEntity.getUuid()));
+
+    RestaurantDetailsResponseAddress restaurantDetailsResponseAddress =
+        createRestaurantDetailsResponseAddress(restaurantEntity.getAddress());
+    restaurantDetailsResponse.setAddress(restaurantDetailsResponseAddress);
+
+    restaurantDetailsResponse.setAveragePrice(restaurantEntity.getAvgPrice());
+    restaurantDetailsResponse.setCustomerRating(
+        BigDecimal.valueOf(restaurantEntity.getCustomerRating()));
+    restaurantDetailsResponse.setNumberCustomersRated(restaurantEntity.getNumberCustomersRated());
+    restaurantDetailsResponse.setPhotoURL(restaurantEntity.getPhotoUrl());
+    restaurantDetailsResponse.setRestaurantName(restaurantEntity.getRestaurantName());
+
+    return restaurantDetailsResponse;
+  }
+
+  /* Creates RestaurantDetailsResponseAddress */
+
+  private RestaurantDetailsResponseAddress createRestaurantDetailsResponseAddress(
+      AddressEntity restaurantAddress) {
+    RestaurantDetailsResponseAddress restaurantDetailsResponseAddress =
+        new RestaurantDetailsResponseAddress();
+    RestaurantDetailsResponseAddressState restaurantDetailsResponseAddressState =
+        new RestaurantDetailsResponseAddressState();
+    AddressEntity addressEntity = restaurantAddress;
+    restaurantDetailsResponseAddress.setId(UUID.fromString(addressEntity.getUuid()));
+    restaurantDetailsResponseAddress.setFlatBuildingName(addressEntity.getFlatBuilNo());
+    restaurantDetailsResponseAddress.setCity(addressEntity.getCity());
+    restaurantDetailsResponseAddress.setLocality(addressEntity.getLocality());
+    restaurantDetailsResponseAddress.setPincode(addressEntity.getPincode());
+
+    restaurantDetailsResponseAddressState.setId(
+        UUID.fromString(addressEntity.getState().getUuid()));
+    restaurantDetailsResponseAddressState.setStateName(addressEntity.getState().getStateName());
+    restaurantDetailsResponseAddress.setState(restaurantDetailsResponseAddressState);
+    return restaurantDetailsResponseAddress;
+  }
+
+  /* Gets List<CategoryList>  in the resturant  */
+
+  private List<CategoryList> getAllCategoryItemsInRestaurant(final String restaurantUuid) {
+    List<CategoryList> allCategoryItems = new ArrayList<>();
+    List<CategoryEntity> categories = categoryService.getCategoriesByRestaurant(restaurantUuid);
+
+    for (CategoryEntity c : categories) {
+      CategoryList categoryList = new CategoryList();
+      categoryList.setId(UUID.fromString(c.getUuid()));
+      categoryList.setCategoryName(c.getCategoryName());
+      List<ItemList> allItemsInCategory =
+          getAllItemsInCategoryInRestaurant(restaurantUuid, c.getUuid());
+      categoryList.setItemList(allItemsInCategory);
+      allCategoryItems.add(categoryList);
     }
 
-    /**
-     * This API endpoint gets list of all restaurant found for given category UUID
-     *
-     * @return
-     */
-    @CrossOrigin
-    @RequestMapping(
-            method = RequestMethod.GET,
-            path = ("/restaurant/category/{category_id}"),
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<RestaurantListResponse> getRestaurantByCategory
-    (@PathVariable("category_id")final String categoryUuid) throws CategoryNotFoundException {
+    return allCategoryItems;
+  }
 
-        List<RestaurantEntity> allRestaurants = restaurantService.getAllRestaurantsByCategory(categoryUuid);
-        List<RestaurantList> allRestaurantsList = getRestaurantList(allRestaurants);
-        sortAlphabetically(allRestaurantsList);
-        RestaurantListResponse restaurantListResponse = new RestaurantListResponse().restaurants(allRestaurantsList);
+  /* Gets List<ItemList>  in given category  in the resturant  */
 
-        if(allRestaurantsList.isEmpty()) {
-            return new ResponseEntity<>(restaurantListResponse, HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(restaurantListResponse, HttpStatus.OK);
+  private List<ItemList> getAllItemsInCategoryInRestaurant(
+      final String restaurantUuid, final String categoryUuid) {
+    List<ItemList> itemsInCategoryInRestaurant = new ArrayList<>();
+    List<ItemEntity> items =
+        itemService.getItemsByCategoryAndRestaurant(restaurantUuid, categoryUuid);
+    for (ItemEntity item : items) {
+      ItemList itemList = new ItemList();
+      itemList.setId(UUID.fromString(item.getUuid()));
+      itemList.setItemName(item.getItemName());
+      itemList.setPrice(item.getPrice());
+      if (item.getType().equals("0")) {
+        itemList.setItemType(ItemList.ItemTypeEnum.valueOf("VEG"));
+      } else {
+        itemList.setItemType(ItemList.ItemTypeEnum.valueOf("NON_VEG"));
+      }
 
+      itemsInCategoryInRestaurant.add(itemList);
     }
 
-    /**
-     * This API endpoint gets  restaurant  for given restaurant UUID
-     *
-     * @return
-     */
-    @CrossOrigin
-    @RequestMapping(
-            method = RequestMethod.GET,
-            path = ("/restaurant/{restaurant_id}"),
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<RestaurantDetailsResponse> getRestaurantById
-    (@PathVariable("restaurant_id")final String restaurantUuid) throws RestaurantNotFoundException {
-
-        RestaurantEntity restaurantEntity = restaurantService.restaurantByUUID(restaurantUuid);
-        List<CategoryList> categories = getAllCategoryItemsInRestaurant(restaurantEntity);
-
-        RestaurantDetailsResponse restaurantDetailsResponse = new RestaurantDetailsResponse();
-
-        restaurantDetailsResponse.setId(UUID.fromString(restaurantEntity.getUuid()));
-
-        RestaurantDetailsResponseAddress restaurantDetailsResponseAddress = new
-                RestaurantDetailsResponseAddress();
-        RestaurantDetailsResponseAddressState restaurantDetailsResponseAddressState = new
-                RestaurantDetailsResponseAddressState();
-        AddressEntity addressEntity = restaurantEntity.getAddress();
-        restaurantDetailsResponseAddress.setId(UUID.fromString(addressEntity.getUuid()));
-        restaurantDetailsResponseAddress.setFlatBuildingName(addressEntity.getFlatBuilNo());
-        restaurantDetailsResponseAddress.setCity(addressEntity.getCity());
-        restaurantDetailsResponseAddress.setLocality(addressEntity.getLocality());
-        restaurantDetailsResponseAddress.setPincode(addressEntity.getPincode());
-
-        restaurantDetailsResponseAddressState.setId(UUID.fromString(addressEntity.getState().getUuid()));
-        restaurantDetailsResponseAddressState.setStateName(addressEntity.getState().getStateName());
-        restaurantDetailsResponseAddress.setState(restaurantDetailsResponseAddressState);
-        restaurantDetailsResponse.setAddress(restaurantDetailsResponseAddress);
-
-        restaurantDetailsResponse.setAveragePrice(restaurantEntity.getAvgPrice());
-        restaurantDetailsResponse.setCustomerRating(BigDecimal.valueOf(restaurantEntity.getCustomerRating()));
-        restaurantDetailsResponse.setNumberCustomersRated(restaurantEntity.getNumberCustomersRated());
-        restaurantDetailsResponse.setPhotoURL(restaurantEntity.getPhotoUrl());
-        restaurantDetailsResponse.setRestaurantName(restaurantEntity.getRestaurantName());
-        restaurantDetailsResponse.setCategories(categories);
-
-
-        return new ResponseEntity<>(restaurantDetailsResponse, HttpStatus.OK);
-
-    }
-
-    /**
-     * This API endpoint updates the restaurant rating by customer
-     *
-     * @return
-     */
-    @CrossOrigin
-    @RequestMapping(
-            method = RequestMethod.POST,
-            path = ("/restaurant/{restaurant_id}/update"),
-            produces = MediaType.APPLICATION_JSON_UTF8_VALUE,consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<RestaurantUpdatedResponse> updateRestaurantRating
-    (@RequestHeader("authorization")final String authorization, @PathVariable("restaurant_id")final String restaurantUuid, final Double customerRating)
-            throws AuthorizationFailedException, RestaurantNotFoundException, InvalidRatingException {
-        String accessToken = Utility.getTokenFromAuthorization(authorization);
-        CustomerEntity customerEntity = customerService.getCustomer(accessToken);
-        RestaurantEntity restaurantEntity = restaurantService.restaurantByUUID(restaurantUuid);
-        RestaurantEntity updatedRestaurantEntity = restaurantService.updateRestaurantRating(restaurantEntity,customerRating);
-        RestaurantUpdatedResponse restaurantUpdatedResponse = new RestaurantUpdatedResponse();
-        restaurantUpdatedResponse.setId(UUID.fromString(updatedRestaurantEntity.getUuid()));
-        restaurantUpdatedResponse.setStatus("RESTAURANT RATING UPDATED SUCCESSFULLY");
-
-        return  new ResponseEntity<RestaurantUpdatedResponse>(restaurantUpdatedResponse, HttpStatus.OK);
-
-    }
-
-    private List<RestaurantList> getRestaurantList(final List<RestaurantEntity> allRestaurants){
-        List<RestaurantList> allRestaurantsList = new ArrayList<>();
-        for (RestaurantEntity r : allRestaurants) {
-            RestaurantList restaurantList = new RestaurantList();
-            RestaurantDetailsResponseAddress restaurantDetailsResponseAddress = new
-                    RestaurantDetailsResponseAddress();
-            RestaurantDetailsResponseAddressState restaurantDetailsResponseAddressState = new
-                    RestaurantDetailsResponseAddressState();
-            restaurantList.setId(UUID.fromString(r.getUuid()));
-
-            AddressEntity addressEntity = r.getAddress();
-            restaurantDetailsResponseAddress.setId(UUID.fromString(addressEntity.getUuid()));
-            restaurantDetailsResponseAddress.setFlatBuildingName(addressEntity.getFlatBuilNo());
-            restaurantDetailsResponseAddress.setCity(addressEntity.getCity());
-            restaurantDetailsResponseAddress.setLocality(addressEntity.getLocality());
-            restaurantDetailsResponseAddress.setPincode(addressEntity.getPincode());
-
-            restaurantDetailsResponseAddressState.setId(UUID.fromString(addressEntity.getState().getUuid()));
-            restaurantDetailsResponseAddressState.setStateName(addressEntity.getState().getStateName());
-
-            restaurantDetailsResponseAddress.setState(restaurantDetailsResponseAddressState);
-
-            restaurantList.setAddress(restaurantDetailsResponseAddress);
-            restaurantList.setAveragePrice(r.getAvgPrice());
-
-            Set categories = new TreeSet();
-            for (CategoryEntity c : r.getCategories()) {
-                categories.add(c.getCategoryName());
-            }
-            StringBuilder categoriesString = new StringBuilder();
-            for (Object c : categories) {
-                categoriesString.append(  c + ", ");
-            }
-            restaurantList.setCategories(categoriesString.toString().replaceAll(", $", ""));
-
-            restaurantList.setCustomerRating(BigDecimal.valueOf(r.getCustomerRating()));
-            restaurantList.setNumberCustomersRated(r.getNumberCustomersRated());
-            restaurantList.setPhotoURL(r.getPhotoUrl());
-            restaurantList.setRestaurantName(r.getRestaurantName());
-            allRestaurantsList.add(restaurantList);
-
-        }
-
-
-        return allRestaurantsList;
-
-    }
-
-
-    private void sortAlphabetically(List<RestaurantList> allRestaurantsList){
-        Collections.sort(allRestaurantsList, new Comparator<RestaurantList>() {
-            @Override
-            public int compare(RestaurantList r1, RestaurantList r2) {
-                return r1.getRestaurantName().compareTo(r2.getRestaurantName());
-            }
-
-        });
-    }
-
-
-    private List<CategoryList> getAllCategoryItemsInRestaurant(final RestaurantEntity restaurantEntity){
-        List<CategoryList> allCategoryItems = new ArrayList<>();
-        List<CategoryEntity> categories = restaurantEntity.getCategories();
-        sortCategoriesAlphabetically(categories);
-        for (CategoryEntity c: categories){
-            CategoryList categoryList = new CategoryList();
-            categoryList.setId(UUID.fromString(c.getUuid()));
-            categoryList.setCategoryName(c.getCategoryName());
-            List<ItemList> allItemsInCategory =
-                    getAllItemsInCategoryInRestaurant(restaurantEntity.getId(),c.getId());
-            categoryList.setItemList(allItemsInCategory);
-            allCategoryItems.add(categoryList);
-        }
-
-        return  allCategoryItems;
-    }
-
-    private void sortCategoriesAlphabetically(List<CategoryEntity> categoryEntities){
-        Collections.sort(categoryEntities, new Comparator<CategoryEntity>() {
-            @Override
-            public int compare(CategoryEntity c1, CategoryEntity c2) {
-                return c1.getCategoryName().compareTo(c2.getCategoryName());
-            }
-
-        });
-    }
-
-    private List<ItemList> getAllItemsInCategoryInRestaurant(final Integer restaurantId, final Integer categoryId){
-        List<ItemList> itemsInCategoryInRestaurant = new ArrayList<>();
-        List<ItemEntity> items = itemService.getItemsInCategoryInRestaurant(restaurantId,categoryId);
-        for(ItemEntity i :items){
-            ItemList itemList = new ItemList();
-            itemList.setId(UUID.fromString(i.getUuid()));
-            itemList.setItemName(i.getItemName());
-            itemList.setPrice(i.getPrice());
-            if (i.getType().equals("0")) {
-                itemList.setItemType(ItemList.ItemTypeEnum.valueOf("VEG"));
-            } else {
-                itemList.setItemType(ItemList.ItemTypeEnum.valueOf("NON_VEG"));
-            }
-
-            itemsInCategoryInRestaurant.add(itemList);
-        }
-
-        return itemsInCategoryInRestaurant;
-    }
-
-
+    return itemsInCategoryInRestaurant;
+  }
 }

@@ -193,13 +193,13 @@ public class RestExceptionHandler {
    * Exception handler for InvalidRatingException
    *
    * @return ResponseEntity<ErrorResponse> type object displaying error code and error message along
-   * * with HttpStatus as NOT_FOUND.
+   *     * with HttpStatus as BAD_REQUEST.
    */
   @ExceptionHandler(InvalidRatingException.class)
   public ResponseEntity<ErrorResponse> invalidRatingExcpetion(
-          InvalidRatingException exception, WebRequest request) {
+      InvalidRatingException exception, WebRequest request) {
     return new ResponseEntity<ErrorResponse>(
             new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()),
-            HttpStatus.NOT_ACCEPTABLE);
+            HttpStatus.BAD_REQUEST);
   }
 }

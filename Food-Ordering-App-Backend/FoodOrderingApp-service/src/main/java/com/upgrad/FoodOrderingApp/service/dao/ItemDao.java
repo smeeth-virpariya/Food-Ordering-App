@@ -48,16 +48,18 @@ public class ItemDao {
   /**
    * This method gets Items for a given category in a restaurant
    *
-   * @param restaurantId Restaurant whose items are to be queried, categoryId Category to be queried.
-   *    * @return List of ItemEntity
+   * @param restaurantUuid Restaurant whose items are to be queried, categoryUuid Category to be
+   *     queried. * @return List of ItemEntity
+   * @return List of ItemEntity
    */
-  public List<ItemEntity> getAllItemsInCategoryInRestaurant(Integer restaurantId, Integer categoryId) {
+  public List<ItemEntity> getAllItemsInCategoryInRestaurant(
+      final String restaurantUuid, final String categoryUuid) {
     List<ItemEntity> items =
-            entityManager
-                    .createNamedQuery("getAllItemsInCategoryInRestaurant", ItemEntity.class)
-                    .setParameter("restaurantId",restaurantId )
-                    .setParameter("categoryId",categoryId)
-                    .getResultList();
-      return items;
+        entityManager
+            .createNamedQuery("getAllItemsInCategoryInRestaurant", ItemEntity.class)
+            .setParameter("restaurantUuid", restaurantUuid)
+            .setParameter("categoryUuid", categoryUuid)
+            .getResultList();
+    return items;
   }
 }
