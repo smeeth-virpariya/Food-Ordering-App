@@ -25,7 +25,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 @Entity
 @Table(name = "category")
 @NamedQueries({
-
   @NamedQuery(
       name = "categoryByUuid",
       query = "select c from CategoryEntity c where c.uuid=:uuid order by categoryName"),
