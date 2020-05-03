@@ -32,7 +32,7 @@ public class CouponDao {
   /**
    * This method fetches CouponEntity from database based on the coupon id.
    *
-   * @param couponId
+   * @param couponUUID
    * @return CouponEntity or null if there is no coupon in database by given id.
    */
   public CouponEntity getCouponByCouponId(String couponUUID) {

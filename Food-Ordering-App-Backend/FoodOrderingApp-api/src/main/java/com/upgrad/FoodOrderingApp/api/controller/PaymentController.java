@@ -24,8 +24,8 @@ public class PaymentController {
 
   /**
    * This API endpoint gets all the payment methods
-   * @return Payment methods
    *
+   * @return Payment methods
    */
   @CrossOrigin
   @RequestMapping(

@@ -35,18 +35,16 @@ import org.apache.commons.lang3.builder.ToStringStyle;
       resultClass = ItemEntity.class)
 })
 @NamedQueries({
-  @NamedQuery(
-      name = "itemByUUID",
-      query = "select i from ItemEntity i where i.uuid=:itemUUID"),
+  @NamedQuery(name = "itemByUUID", query = "select i from ItemEntity i where i.uuid=:itemUUID"),
   @NamedQuery(
       name = "getAllItemsInCategoryInRestaurant",
       query =
-              "select i from ItemEntity i  where id in (select ri.itemId from RestaurantItemEntity ri "
-                      + "inner join CategoryItemEntity ci on ri.itemId = ci.itemId "
-                      + "where ri.restaurantId = (select r.id from RestaurantEntity r where " +
-                      "r.uuid=:restaurantUuid) and ci.categoryId = " +
-                      "(select c.id from CategoryEntity c where c.uuid=:categoryUuid ) )" +
-                      "order by lower(i.itemName) asc")
+          "select i from ItemEntity i  where id in (select ri.itemId from RestaurantItemEntity ri "
+              + "inner join CategoryItemEntity ci on ri.itemId = ci.itemId "
+              + "where ri.restaurantId = (select r.id from RestaurantEntity r where "
+              + "r.uuid=:restaurantUuid) and ci.categoryId = "
+              + "(select c.id from CategoryEntity c where c.uuid=:categoryUuid ) )"
+              + "order by lower(i.itemName) asc")
 })
 public class ItemEntity implements Serializable {
   @Id

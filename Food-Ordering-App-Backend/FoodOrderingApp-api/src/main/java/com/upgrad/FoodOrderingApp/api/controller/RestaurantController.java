@@ -74,7 +74,9 @@ public class RestaurantController {
   /**
    * This API endpoint gets list of all restaurant found for given search string
    *
-   * @return
+   * @param restaurantName Name of the restaurant that one would like to search
+   * @return RestaurantListResponse
+   * @throws RestaurantNotFoundException If the restaurant doesn't exist in database.
    */
   @CrossOrigin
   @RequestMapping(
@@ -99,7 +101,10 @@ public class RestaurantController {
   /**
    * This API endpoint gets list of all restaurant found for given category UUID
    *
-   * @return
+   * @param categoryUuid UUID of the category
+   * @return RestaurantListResponse
+   * @throws CategoryNotFoundException if the category with the given UUID is not found in the
+   *     database.
    */
   @CrossOrigin
   @RequestMapping(
@@ -123,7 +128,10 @@ public class RestaurantController {
   /**
    * This API endpoint gets restaurant for given restaurant UUID
    *
-   * @return
+   * @param restaurantUuid UUID of the restaurant whose details are requested
+   * @return RestaurantDetailsResponse
+   * @throws RestaurantNotFoundException if the restaurant with the UUID is not found in the
+   *     database.
    */
   @CrossOrigin
   @RequestMapping(
@@ -145,7 +153,14 @@ public class RestaurantController {
   /**
    * This API endpoint updates the restaurant rating by customer
    *
+   * @param authorization Bearer <access-token>
+   * @param restaurantUuid UUID of the restaurant whose rating is to be updated.
+   * @param customerRating Actual rating value that is to be updated.
    * @return
+   * @throws AuthorizationFailedException if the given token is not valid.
+   * @throws RestaurantNotFoundException if the restaurant with the given uuid doesn't exist in
+   *     database.
+   * @throws InvalidRatingException if the rating is less than 1 or grater than 5.
    */
   @CrossOrigin
   @RequestMapping(
@@ -156,7 +171,7 @@ public class RestaurantController {
   public ResponseEntity<RestaurantUpdatedResponse> updateRestaurantRating(
       @RequestHeader("authorization") final String authorization,
       @PathVariable("restaurant_id") final String restaurantUuid,
-      @RequestParam("customer_rating")final Double customerRating)
+      @RequestParam("customer_rating") final Double customerRating)
       throws AuthorizationFailedException, RestaurantNotFoundException, InvalidRatingException {
     String accessToken = Utility.getTokenFromAuthorization(authorization);
     CustomerEntity customerEntity = customerService.getCustomer(accessToken);

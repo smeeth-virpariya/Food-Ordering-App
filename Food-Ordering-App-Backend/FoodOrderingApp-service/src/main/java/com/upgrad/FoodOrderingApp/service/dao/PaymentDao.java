@@ -29,6 +29,12 @@ public class PaymentDao {
     return Collections.emptyList();
   }
 
+  /**
+   * Fetch payment based on UUID.
+   *
+   * @param paymentUUID
+   * @return PaymentEntity if found else null.
+   */
   public PaymentEntity getPaymentByUUID(String paymentUUID) {
     try {
       PaymentEntity paymentEntity =

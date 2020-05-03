@@ -47,8 +47,8 @@ public class RestaurantService {
    * @return List of RestaurantEntity
    */
   public List<RestaurantEntity> restaurantsByName(final String search)
-          throws RestaurantNotFoundException {
-    if (search == null) {
+      throws RestaurantNotFoundException {
+    if (search == null || search.isEmpty()) {
       throw new RestaurantNotFoundException("RNF-003", "Restaurant name field should not be empty");
     }
 
@@ -63,7 +63,7 @@ public class RestaurantService {
    * @return List of RestaurantEntity
    */
   public List<RestaurantEntity> restaurantByCategory(final String categoryUuid)
-          throws CategoryNotFoundException {
+      throws CategoryNotFoundException {
     if (categoryUuid == null) {
       throw new CategoryNotFoundException("CNF-001", "Category id field should not be empty");
     }
@@ -85,8 +85,8 @@ public class RestaurantService {
    */
   @Transactional(propagation = Propagation.REQUIRED)
   public RestaurantEntity updateRestaurantRating(
-          final RestaurantEntity restaurantEntity, final Double customerRating)
-          throws InvalidRatingException {
+      final RestaurantEntity restaurantEntity, final Double customerRating)
+      throws InvalidRatingException {
     if (Double.valueOf(customerRating) < 1 || Double.valueOf(customerRating) > 5) {
       throw new InvalidRatingException("IRE-001", "Restaurant should be in the range of 1 to 5");
     }
@@ -95,7 +95,7 @@ public class RestaurantService {
     Integer numberCustomersRated = restaurantEntity.getNumberCustomersRated();
 
     Double newRating =
-            ((currentRating * numberCustomersRated) + currentRating) / (numberCustomersRated + 1);
+        ((currentRating * numberCustomersRated) + currentRating) / (numberCustomersRated + 1);
 
     restaurantEntity.setCustomerRating(newRating);
     restaurantEntity.setNumberCustomersRated(numberCustomersRated + 1);
