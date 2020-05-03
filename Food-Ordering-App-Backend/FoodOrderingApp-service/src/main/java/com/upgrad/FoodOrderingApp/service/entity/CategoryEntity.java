@@ -30,7 +30,13 @@ import org.apache.commons.lang3.builder.ToStringStyle;
       query = "select c from CategoryEntity c where c.uuid=:uuid order by categoryName"),
   @NamedQuery(
       name = "getAllCategoriesOrderedByName",
-      query = "select c from CategoryEntity c order by categoryName asc")
+      query = "select c from CategoryEntity c order by categoryName asc"),
+  @NamedQuery(
+      name = "getCategoriesByRestaurant",
+      query =
+              "Select c from CategoryEntity c where id in (select rc.categoryId from RestaurantCategoryEntity rc where rc.restaurantId = "
+                      + "(select r.id from RestaurantEntity r where "
+                      + " r.uuid=:restaurantUuid) )  order by c.categoryName")
 })
 public class CategoryEntity implements Serializable {
   @Id

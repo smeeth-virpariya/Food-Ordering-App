@@ -41,4 +41,21 @@ public class CategoryDao {
         .createNamedQuery("getAllCategoriesOrderedByName", CategoryEntity.class)
         .getResultList();
   }
+
+  /**
+   * This method fetches all CategoryEntity from db for given restaurant
+   *
+   * @param restaurantUuid
+   * @return List of categoryEntity
+   */
+  public List<CategoryEntity> getCategoriesByRestaurant(final String restaurantUuid) {
+    try {
+      return entityManager
+              .createNamedQuery("getCategoriesByRestaurant", CategoryEntity.class)
+              .setParameter("restaurantUuid", restaurantUuid)
+              .getResultList();
+    } catch (NoResultException nre) {
+      return null;
+    }
+  }
 }

@@ -1,11 +1,5 @@
 package com.upgrad.FoodOrderingApp.service.entity;
 
-import com.upgrad.FoodOrderingApp.service.common.ItemType;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -19,6 +13,11 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import com.upgrad.FoodOrderingApp.service.common.ItemType;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 @Entity
 @Table(name = "item")
@@ -38,7 +37,16 @@ import java.io.Serializable;
 @NamedQueries({
   @NamedQuery(
       name = "itemByUUID",
-      query = "select i from ItemEntity i where i.uuid=:itemUUID")
+      query = "select i from ItemEntity i where i.uuid=:itemUUID"),
+  @NamedQuery(
+      name = "getAllItemsInCategoryInRestaurant",
+      query =
+              "select i from ItemEntity i  where id in (select ri.itemId from RestaurantItemEntity ri "
+                      + "inner join CategoryItemEntity ci on ri.itemId = ci.itemId "
+                      + "where ri.restaurantId = (select r.id from RestaurantEntity r where " +
+                      "r.uuid=:restaurantUuid) and ci.categoryId = " +
+                      "(select c.id from CategoryEntity c where c.uuid=:categoryUuid ) )" +
+                      "order by lower(i.itemName) asc")
 })
 public class ItemEntity implements Serializable {
   @Id

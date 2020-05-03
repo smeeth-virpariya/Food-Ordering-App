@@ -6,6 +6,7 @@ import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedExceptio
 import com.upgrad.FoodOrderingApp.service.exception.AuthorizationFailedException;
 import com.upgrad.FoodOrderingApp.service.exception.CategoryNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.CouponNotFoundException;
+import com.upgrad.FoodOrderingApp.service.exception.InvalidRatingException;
 import com.upgrad.FoodOrderingApp.service.exception.ItemNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.PaymentMethodNotFoundException;
 import com.upgrad.FoodOrderingApp.service.exception.RestaurantNotFoundException;
@@ -186,5 +187,19 @@ public class RestExceptionHandler {
     return new ResponseEntity<ErrorResponse>(
         new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()),
         HttpStatus.NOT_FOUND);
+  }
+
+  /**
+   * Exception handler for InvalidRatingException
+   *
+   * @return ResponseEntity<ErrorResponse> type object displaying error code and error message along
+   *     * with HttpStatus as BAD_REQUEST.
+   */
+  @ExceptionHandler(InvalidRatingException.class)
+  public ResponseEntity<ErrorResponse> invalidRatingExcpetion(
+          InvalidRatingException exception, WebRequest request) {
+    return new ResponseEntity<ErrorResponse>(
+            new ErrorResponse().code(exception.getCode()).message(exception.getErrorMessage()),
+            HttpStatus.BAD_REQUEST);
   }
 }
