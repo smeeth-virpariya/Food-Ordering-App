@@ -1,10 +1,5 @@
 package com.upgrad.FoodOrderingApp.service.entity;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -18,13 +13,31 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 @Entity
 @Table(name = "restaurant")
 @NamedQueries({
   @NamedQuery(
       name = "restaurantByUUID",
-      query = "select r from RestaurantEntity r where r.uuid=:uuid")
+      query = "select r from RestaurantEntity r where r.uuid=:uuid"),
+  @NamedQuery(
+          name = "restaurantsByRating",
+          query = "select r from RestaurantEntity r order  by customerRating desc"),
+  @NamedQuery(
+          name = "getRestaurantByName",
+          query =
+                  "select r from RestaurantEntity r where lower(restaurantName) like lower(:searchString) "
+                          + "order by r.restaurantName asc"),
+  @NamedQuery(
+          name = "restaurantByCategory",
+          query =
+                  "Select r from RestaurantEntity r where id in (select rc.restaurantId from RestaurantCategoryEntity rc where rc.categoryId = "
+                          + "(select c.id from CategoryEntity c where "
+                          + "c.uuid=:categoryUuid) ) order by restaurant_name")
 })
 public class RestaurantEntity implements Serializable {
 

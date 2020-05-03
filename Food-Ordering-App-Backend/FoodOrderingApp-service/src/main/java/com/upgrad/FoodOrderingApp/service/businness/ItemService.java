@@ -1,14 +1,12 @@
 package com.upgrad.FoodOrderingApp.service.businness;
 
+import java.util.List;
 import com.upgrad.FoodOrderingApp.service.dao.ItemDao;
 import com.upgrad.FoodOrderingApp.service.entity.ItemEntity;
 import com.upgrad.FoodOrderingApp.service.entity.RestaurantEntity;
 import com.upgrad.FoodOrderingApp.service.exception.ItemNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.UUID;
 
 @Service
 public class ItemService {
@@ -31,5 +29,21 @@ public class ItemService {
       throw new ItemNotFoundException("INF-003","No item by this id exist");
     }
     return item;
+  }
+
+
+  /**
+   * This method gets Items for a given category in a restaurant
+   *
+   * @param resturantUuid Restaurant whose items are to be queried, categoryUuid Category to be
+   *     queried.
+   * @return List of ItemEntity
+   */
+  public List<ItemEntity> getItemsByCategoryAndRestaurant(
+          final String resturantUuid, final String categoryUuid) {
+
+    List<ItemEntity> itemsInEachCategoryInRestaurant =
+            itemDao.getAllItemsInCategoryInRestaurant(resturantUuid, categoryUuid);
+    return itemsInEachCategoryInRestaurant;
   }
 }

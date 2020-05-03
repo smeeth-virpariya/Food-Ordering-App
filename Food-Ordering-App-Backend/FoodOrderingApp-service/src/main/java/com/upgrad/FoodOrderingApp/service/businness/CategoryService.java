@@ -37,4 +37,16 @@ public class CategoryService {
     List<CategoryEntity> categoryEntities = categoryDao.getAllCategoriesOrderedByName();
     return categoryEntities;
   }
+
+  /**
+   * Gets a List of all CategoryEntities for given restaurant with given restaurantUuid
+   *
+   * @param restaurantUuid
+   * @return List of CategoryEntity
+   */
+  public List<CategoryEntity> getCategoriesByRestaurant(final String restaurantUuid) {
+    List<CategoryEntity> categoryEntities = categoryDao.getCategoriesByRestaurant(restaurantUuid);
+
+    return categoryEntities;
+  }
 }
