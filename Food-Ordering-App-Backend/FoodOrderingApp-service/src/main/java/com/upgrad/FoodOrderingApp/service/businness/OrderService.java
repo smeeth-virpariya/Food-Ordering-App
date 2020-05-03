@@ -70,6 +70,12 @@ public class OrderService {
     return orderDao.getOrdersByCustomers(customerUUID);
   }
 
+  /**
+   * Persists the order in the database.
+   *
+   * @param order Order to be persisted.
+   * @return Persisted order.
+   */
   @Transactional(propagation = Propagation.REQUIRED)
   public OrderEntity saveOrder(OrderEntity order) {
     try {
@@ -79,6 +85,12 @@ public class OrderService {
     }
   }
 
+  /**
+   * Persists the Order Item.
+   *
+   * @param orderItemEntity Order Item to be persisted.
+   * @return persisted order item.
+   */
   @Transactional(propagation = Propagation.REQUIRED)
   public OrderItemEntity saveOrderItem(OrderItemEntity orderItemEntity) {
     try {

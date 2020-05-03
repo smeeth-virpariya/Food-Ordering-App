@@ -16,59 +16,55 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 @Table(name = "restaurant_item")
 public class RestaurantItemEntity {
 
-    @Id
-    @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+  @Id
+  @Column(name = "id")
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Integer id;
 
+  @Column(name = "item_id")
+  @NotNull
+  private Integer itemId;
 
-    @Column(name = "item_id")
-    @NotNull
-    private Integer itemId;
+  @Column(name = "restaurant_id")
+  @NotNull
+  private Integer restaurantId;
 
-    @Column(name = "restaurant_id")
-    @NotNull
-    private Integer restaurantId;
+  public Integer getId() {
+    return id;
+  }
 
+  public void setId(Integer id) {
+    this.id = id;
+  }
 
-    public Integer getId() {
-        return id;
-    }
+  public Integer getItemId() {
+    return itemId;
+  }
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+  public void setItemId(Integer itemId) {
+    this.itemId = itemId;
+  }
 
-    public Integer getItemId() {
-        return itemId;
-    }
+  public Integer getRestaurantId() {
+    return restaurantId;
+  }
 
-    public void setItemId(Integer itemId) {
-        this.itemId = itemId;
-    }
+  public void setRestaurantId(Integer restaurantId) {
+    this.restaurantId = restaurantId;
+  }
 
-    public Integer getRestaurantId() {
-        return restaurantId;
-    }
+  @Override
+  public boolean equals(Object obj) {
+    return new EqualsBuilder().append(this, obj).isEquals();
+  }
 
-    public void setRestaurantId(Integer restaurantId) {
-        this.restaurantId = restaurantId;
-    }
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder().append(this).hashCode();
+  }
 
-    @Override
-    public boolean equals(Object obj) {
-        return new EqualsBuilder().append(this, obj).isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder().append(this).hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
-    }
-
-
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
+  }
 }

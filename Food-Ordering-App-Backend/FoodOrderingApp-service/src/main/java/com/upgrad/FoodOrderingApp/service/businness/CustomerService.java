@@ -141,6 +141,7 @@ public class CustomerService {
 
   /**
    * This method checks if the token is valid.
+   *
    * @param accessToken Takes access-token as input which is obtained during successful login.
    * @return CustomerEntity - Customer who obtained this access-token during his login.
    * @throws AuthorizationFailedException Based on token validity.
@@ -196,7 +197,7 @@ public class CustomerService {
   private boolean isContactNumberInUse(final String contactNumber) {
     return customerDao.getCustomerByContactNumber(contactNumber) != null;
   }
-  
+
   // method checks for format of the email is correct or not using EmailValidator
   private boolean isValidEmail(final String emailAddress) {
     EmailValidator validator = EmailValidator.getInstance();

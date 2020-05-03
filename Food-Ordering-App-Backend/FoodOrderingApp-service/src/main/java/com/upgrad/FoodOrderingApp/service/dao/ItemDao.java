@@ -32,6 +32,12 @@ public class ItemDao {
     return Collections.emptyList();
   }
 
+  /**
+   * Fetch the item based on UUID.
+   *
+   * @param itemUUID UUID of the item to be fetched.
+   * @return ItemEntity if found in database else null
+   */
   public ItemEntity getItemByUUID(String itemUUID) {
     try {
       ItemEntity item =
@@ -53,13 +59,13 @@ public class ItemDao {
    * @return List of ItemEntity
    */
   public List<ItemEntity> getAllItemsInCategoryInRestaurant(
-          final String restaurantUuid, final String categoryUuid) {
+      final String restaurantUuid, final String categoryUuid) {
     List<ItemEntity> items =
-            entityManager
-                    .createNamedQuery("getAllItemsInCategoryInRestaurant", ItemEntity.class)
-                    .setParameter("restaurantUuid", restaurantUuid)
-                    .setParameter("categoryUuid", categoryUuid)
-                    .getResultList();
+        entityManager
+            .createNamedQuery("getAllItemsInCategoryInRestaurant", ItemEntity.class)
+            .setParameter("restaurantUuid", restaurantUuid)
+            .setParameter("categoryUuid", categoryUuid)
+            .getResultList();
     return items;
   }
 }

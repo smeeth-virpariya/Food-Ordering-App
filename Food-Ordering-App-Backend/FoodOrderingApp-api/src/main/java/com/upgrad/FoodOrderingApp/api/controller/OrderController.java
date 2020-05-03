@@ -73,9 +73,9 @@ public class OrderController {
   /**
    * This API endpoint gets coupon details by coupon name
    *
-   * @param authorization
-   * @param couponName
-   * @return
+   * @param authorization Bearer <access-token>
+   * @param couponName Name of the coupon whose details are required.
+   * @return CouponDetailsResponse
    * @throws AuthorizationFailedException If authorization is not valid.
    * @throws CouponNotFoundException If coupon name doesn't exist in database
    */
@@ -103,6 +103,13 @@ public class OrderController {
     return new ResponseEntity<>(couponDetailsResponse, HttpStatus.OK);
   }
 
+  /**
+   * Fetch the orders of the customer.
+   *
+   * @param authorization Bearer <access-token>
+   * @return CustomerOrderResponse
+   * @throws AuthorizationFailedException If authorization is not valid.
+   */
   @CrossOrigin
   @RequestMapping(
       method = RequestMethod.GET,
@@ -142,6 +149,19 @@ public class OrderController {
     return new ResponseEntity<CustomerOrderResponse>(customerOrderResponse, HttpStatus.OK);
   }
 
+  /**
+   * To save the customer order if it is valid.
+   *
+   * @param authorization Bearer <access-token>
+   * @param saveOrderRequest Contains the order details.
+   * @return SaveOrderResponse
+   * @throws AuthorizationFailedException If authorization is not valid.
+   * @throws CouponNotFoundException if the coupon id entered is not valid.
+   * @throws AddressNotFoundException if the address id entered doesn't belong to customer.
+   * @throws PaymentMethodNotFoundException if the payment id entered isn't available in db.
+   * @throws RestaurantNotFoundException if the restaurant id entered isn't available in db.
+   * @throws ItemNotFoundException if the item id entered isn't available in db.
+   */
   @CrossOrigin
   @RequestMapping(
       method = RequestMethod.POST,
@@ -205,6 +225,8 @@ public class OrderController {
 
     return new ResponseEntity<SaveOrderResponse>(saveOrderResponse, HttpStatus.CREATED);
   }
+
+  // Below private methods takes in the entities and converts them to valid response.
 
   private OrderListCustomer getOrderListCustomer(CustomerEntity customer) {
     OrderListCustomer orderListCustomer = new OrderListCustomer();

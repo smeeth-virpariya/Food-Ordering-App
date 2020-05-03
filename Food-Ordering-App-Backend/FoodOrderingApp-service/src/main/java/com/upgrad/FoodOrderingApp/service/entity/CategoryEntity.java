@@ -34,9 +34,9 @@ import org.apache.commons.lang3.builder.ToStringStyle;
   @NamedQuery(
       name = "getCategoriesByRestaurant",
       query =
-              "Select c from CategoryEntity c where id in (select rc.categoryId from RestaurantCategoryEntity rc where rc.restaurantId = "
-                      + "(select r.id from RestaurantEntity r where "
-                      + " r.uuid=:restaurantUuid) )  order by c.categoryName")
+          "Select c from CategoryEntity c where id in (select rc.categoryId from RestaurantCategoryEntity rc where rc.restaurantId = "
+              + "(select r.id from RestaurantEntity r where "
+              + " r.uuid=:restaurantUuid) )  order by c.categoryName")
 })
 public class CategoryEntity implements Serializable {
   @Id

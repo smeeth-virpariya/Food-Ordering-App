@@ -11,6 +11,12 @@ import org.springframework.stereotype.Repository;
 public class RestaurantDao {
   @PersistenceContext private EntityManager entityManager;
 
+  /**
+   * Fetch the restaurant based on UUID.
+   *
+   * @param uuid
+   * @return RestaurantEntity if found in database else null.
+   */
   public RestaurantEntity restaurantByUUID(String uuid) {
     try {
       return entityManager
@@ -30,8 +36,8 @@ public class RestaurantDao {
    */
   public List<RestaurantEntity> restaurantsByRating() {
     return entityManager
-            .createNamedQuery("restaurantsByRating", RestaurantEntity.class)
-            .getResultList();
+        .createNamedQuery("restaurantsByRating", RestaurantEntity.class)
+        .getResultList();
   }
 
   /**
@@ -42,9 +48,9 @@ public class RestaurantDao {
    */
   public List<RestaurantEntity> restaurantsByName(final String searchString) {
     return entityManager
-            .createNamedQuery("getRestaurantByName", RestaurantEntity.class)
-            .setParameter("searchString", "%" + searchString + "%")
-            .getResultList();
+        .createNamedQuery("getRestaurantByName", RestaurantEntity.class)
+        .setParameter("searchString", "%" + searchString + "%")
+        .getResultList();
   }
 
   /**
@@ -67,8 +73,8 @@ public class RestaurantDao {
   public List<RestaurantEntity> restaurantByCategory(final String categoryUuid) {
 
     return entityManager
-            .createNamedQuery("restaurantByCategory", RestaurantEntity.class)
-            .setParameter("categoryUuid", categoryUuid)
-            .getResultList();
+        .createNamedQuery("restaurantByCategory", RestaurantEntity.class)
+        .setParameter("categoryUuid", categoryUuid)
+        .getResultList();
   }
 }

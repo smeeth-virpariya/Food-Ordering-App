@@ -34,11 +34,23 @@ public class OrderDao {
     return Collections.emptyList();
   }
 
+  /**
+   * Order to be persisted in the database.
+   *
+   * @param order
+   * @return Persisted Order.
+   */
   public OrderEntity saveOrder(OrderEntity order) {
     entityManager.persist(order);
     return order;
   }
 
+  /**
+   * Order item that is to be persisted in the database.
+   *
+   * @param orderItemEntity
+   * @return persisted order item.
+   */
   public OrderItemEntity saveOrderItem(OrderItemEntity orderItemEntity) {
     entityManager.persist(orderItemEntity);
     return orderItemEntity;

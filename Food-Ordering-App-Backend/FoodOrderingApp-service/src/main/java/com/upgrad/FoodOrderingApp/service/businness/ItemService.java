@@ -26,11 +26,10 @@ public class ItemService {
   public ItemEntity getItemByUUID(String itemUUID) throws ItemNotFoundException {
     ItemEntity item = itemDao.getItemByUUID(itemUUID);
     if (item == null) {
-      throw new ItemNotFoundException("INF-003","No item by this id exist");
+      throw new ItemNotFoundException("INF-003", "No item by this id exist");
     }
     return item;
   }
-
 
   /**
    * This method gets Items for a given category in a restaurant
@@ -40,10 +39,10 @@ public class ItemService {
    * @return List of ItemEntity
    */
   public List<ItemEntity> getItemsByCategoryAndRestaurant(
-          final String resturantUuid, final String categoryUuid) {
+      final String resturantUuid, final String categoryUuid) {
 
     List<ItemEntity> itemsInEachCategoryInRestaurant =
-            itemDao.getAllItemsInCategoryInRestaurant(resturantUuid, categoryUuid);
+        itemDao.getAllItemsInCategoryInRestaurant(resturantUuid, categoryUuid);
     return itemsInEachCategoryInRestaurant;
   }
 }

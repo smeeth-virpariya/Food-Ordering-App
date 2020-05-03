@@ -25,19 +25,19 @@ import org.apache.commons.lang3.builder.ToStringStyle;
       name = "restaurantByUUID",
       query = "select r from RestaurantEntity r where r.uuid=:uuid"),
   @NamedQuery(
-          name = "restaurantsByRating",
-          query = "select r from RestaurantEntity r order  by customerRating desc"),
+      name = "restaurantsByRating",
+      query = "select r from RestaurantEntity r order  by customerRating desc"),
   @NamedQuery(
-          name = "getRestaurantByName",
-          query =
-                  "select r from RestaurantEntity r where lower(restaurantName) like lower(:searchString) "
-                          + "order by r.restaurantName asc"),
+      name = "getRestaurantByName",
+      query =
+          "select r from RestaurantEntity r where lower(restaurantName) like lower(:searchString) "
+              + "order by r.restaurantName asc"),
   @NamedQuery(
-          name = "restaurantByCategory",
-          query =
-                  "Select r from RestaurantEntity r where id in (select rc.restaurantId from RestaurantCategoryEntity rc where rc.categoryId = "
-                          + "(select c.id from CategoryEntity c where "
-                          + "c.uuid=:categoryUuid) ) order by restaurant_name")
+      name = "restaurantByCategory",
+      query =
+          "Select r from RestaurantEntity r where id in (select rc.restaurantId from RestaurantCategoryEntity rc where rc.categoryId = "
+              + "(select c.id from CategoryEntity c where "
+              + "c.uuid=:categoryUuid) ) order by restaurant_name")
 })
 public class RestaurantEntity implements Serializable {
 
